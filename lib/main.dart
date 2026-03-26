@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kal_rasol_allah/core/routes/approuter.dart';
 
 void main() {
   runApp(KalRasoolAllah());
@@ -10,6 +10,12 @@ class KalRasoolAllah extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp();
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        scaffoldBackgroundColor: const Color.fromARGB(255, 15, 15, 15),
+      ),
+      onGenerateRoute: Approuter.generateroute,
+    );
   }
 }
