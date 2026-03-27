@@ -70,11 +70,11 @@ class _SettingsPageState extends State<SettingsPage> {
                           horizontal: 16,
                         ),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // ✅ عنوان القسم
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Text(
                                   'الإشعارات',
@@ -105,7 +105,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 value: _notificationsEnabled,
                                 onChanged: (val) =>
                                     setState(() => _notificationsEnabled = val),
-                                activeColor: AppColors.primaryGreen,
+                                activeThumbColor: AppColors.primaryGreen,
                               ),
                             ),
 
@@ -115,10 +115,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
                             // ✅ وقت التذكير
                             Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Text(
                                       'وقت التذكير',
@@ -189,11 +189,11 @@ class _SettingsPageState extends State<SettingsPage> {
                           horizontal: 16,
                         ),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // ✅ عنوان القسم
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Text(
                                   'المظهر',
@@ -312,31 +312,34 @@ class _SettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        trailing,
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              title,
-              style: AppTextStyles.small.copyWith(
-                color: AppColors.offWhite,
-                fontSize: 15,
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          trailing,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                title,
+                style: AppTextStyles.small.copyWith(
+                  color: AppColors.offWhite,
+                  fontSize: 15,
+                ),
               ),
-            ),
-            const Gap(4),
-            Text(
-              subtitle,
-              style: AppTextStyles.small.copyWith(
-                color: AppColors.darkGray,
-                fontSize: 12,
+              const Gap(4),
+              Text(
+                subtitle,
+                style: AppTextStyles.small.copyWith(
+                  color: AppColors.darkGray,
+                  fontSize: 12,
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/classes/event.dart';
-import 'package:flutter_calendar_carousel/classes/event_list.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
 import 'package:gap/gap.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
@@ -101,6 +100,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 child: SizedBox(
                   height: 330,
                   child: CalendarCarousel<Event>(
+                    firstDayOfWeek: 6,
                     // ✅ الشهر الحالي
                     targetDateTime: _currentDate,
                     selectedDateTime: _currentDate,
@@ -183,10 +183,10 @@ class _HistoryPageState extends State<HistoryPage> {
                     dayButtonColor: Colors.transparent,
 
                     // ✅ إخفاء أيام الشهر السابق والتالي
-                    showOnlyCurrentMonthDate: true,
+                    showOnlyCurrentMonthDate: false,
 
                     // ✅ RTL
-                    isScrollable: true,
+                    isScrollable: false,
                     scrollDirection: Axis.horizontal,
                     locale: 'ar',
                   ),
