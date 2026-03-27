@@ -6,6 +6,7 @@ class AppColors {
   static const Color card = Color(0xFF1A1A1A); // Card background
   static const Color secondary = Color(0xFF2A2A2A); // Secondary elements
   static const Color border = Color(0xFF3A3A3A); // Borders & inputs
+  static const Color black = Color.fromARGB(0, 0, 0, 0); // Borders & inputs
 
   // ================== Brand Colors ==================
   static const Color primaryGreen = Color(0xFF2D7A5E);
