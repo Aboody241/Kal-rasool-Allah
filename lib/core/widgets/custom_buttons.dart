@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 
 class PrimaryButton extends StatelessWidget {

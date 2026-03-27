@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kal_rasol_allah/core/routes/notfound_screen.dart';
+import 'package:kal_rasol_allah/features/history/history_page.dart';
 import 'package:kal_rasol_allah/features/home/pages/home_page.dart';
 import 'package:kal_rasol_allah/features/onboard/on_board_page.dart';
 import 'package:kal_rasol_allah/features/splash/splash_screen.dart';
@@ -12,6 +12,7 @@ class Approuter {
   static const String onboardScreen = '/onboardScreen';
   static const String homepage = '/homePage';
   static const String mainNavbar = '/mainNavbar';
+  static const String historyPage = '/historyPage';
 
   static Route<dynamic> generateroute(RouteSettings setting) {
     switch (setting.name) {
@@ -23,6 +24,8 @@ class Approuter {
         return MaterialPageRoute(builder: (_) => HomePage());
       case mainNavbar:
         return MaterialPageRoute(builder: (_) => MainNavBar());
+      case historyPage:
+        return MaterialPageRoute(builder: (_) => HistoryPage());
 
       default:
         return MaterialPageRoute(builder: (_) => NotfoundScreen());

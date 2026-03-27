@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
+import 'package:kal_rasol_allah/features/history/history_page.dart';
 import 'package:kal_rasol_allah/features/home/pages/home_page.dart';
 
 class MainNavBar extends StatefulWidget {
@@ -14,13 +15,13 @@ class _MainNavBarState extends State<MainNavBar> {
 
   final List<Widget> _pages = [
     const HomePage(),
-    const Center(child: Text('المفضلة')),
+    const HistoryPage(),
     const Center(child: Text('الإعدادات')),
   ];
 
   final List<_NavItem> _items = const [
     _NavItem(icon: Icons.home_rounded, label: 'الرئيسية'),
-    _NavItem(icon: Icons.favorite_outline_rounded, label: 'المفضلة'),
+    _NavItem(icon: Icons.watch_later_outlined, label: 'السِجل'),
     _NavItem(icon: Icons.settings_outlined, label: 'الإعدادات'),
   ];
 
