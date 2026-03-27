@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/features/history/history_page.dart';
 import 'package:kal_rasol_allah/features/home/pages/home_page.dart';
+import 'package:kal_rasol_allah/features/setting/setting_page.dart';
 
 class MainNavBar extends StatefulWidget {
   const MainNavBar({super.key});
@@ -16,7 +17,7 @@ class _MainNavBarState extends State<MainNavBar> {
   final List<Widget> _pages = [
     const HomePage(),
     const HistoryPage(),
-    const Center(child: Text('الإعدادات')),
+    const SettingsPage(),
   ];
 
   final List<_NavItem> _items = const [

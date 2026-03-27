@@ -3,6 +3,7 @@ import 'package:kal_rasol_allah/core/routes/notfound_screen.dart';
 import 'package:kal_rasol_allah/features/history/history_page.dart';
 import 'package:kal_rasol_allah/features/home/pages/home_page.dart';
 import 'package:kal_rasol_allah/features/onboard/on_board_page.dart';
+import 'package:kal_rasol_allah/features/setting/setting_page.dart';
 import 'package:kal_rasol_allah/features/splash/splash_screen.dart';
 import 'package:kal_rasol_allah/main_nav_bar.dart';
 
@@ -13,6 +14,7 @@ class Approuter {
   static const String homepage = '/homePage';
   static const String mainNavbar = '/mainNavbar';
   static const String historyPage = '/historyPage';
+  static const String settingScreen = '/settingScreen';
 
   static Route<dynamic> generateroute(RouteSettings setting) {
     switch (setting.name) {
@@ -26,6 +28,8 @@ class Approuter {
         return MaterialPageRoute(builder: (_) => MainNavBar());
       case historyPage:
         return MaterialPageRoute(builder: (_) => HistoryPage());
+      case settingScreen:
+        return MaterialPageRoute(builder: (_) => SettingsPage());
 
       default:
         return MaterialPageRoute(builder: (_) => NotfoundScreen());
