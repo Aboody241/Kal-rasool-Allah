@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/core/widgets/container_box.dart';
+import 'package:kal_rasol_allah/core/widgets/pages_title.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _notificationsEnabled = true;
-  bool _darkModeEnabled = true;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
 
   // ✅ فتح الـ TimePicker
@@ -40,6 +42,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ref.watch(ThemeRiverPod);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -47,18 +50,9 @@ class _SettingsPageState extends State<SettingsPage> {
           child: Column(
             children: [
               const Gap(10),
+        const      PagesTitle(title: 'الإعدادات', subtitle: 'خصص تجربتك في التطبيق'),
 
               // ✅ Header
-              Text('الإعدادات', style: AppTextStyles.title),
-              const Gap(8),
-              Text(
-                'خصص تجربتك في التطبيق',
-                style: AppTextStyles.subTitle.copyWith(
-                  color: AppColors.darkGray,
-                ),
-              ),
-              const Gap(30),
-
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
@@ -82,6 +76,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                     decoration: TextDecoration.underline,
                                     decorationColor: AppColors.primaryGreen,
                                     decorationThickness: 2,
+                                    color: isDark
+                                        ? AppColors.lightGray
+                                        : AppColors.card,
                                   ),
                                 ),
                                 const Gap(8),
@@ -105,7 +102,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 value: _notificationsEnabled,
                                 onChanged: (val) =>
                                     setState(() => _notificationsEnabled = val),
-                                activeThumbColor: AppColors.primaryGreen,
+                                activeThumbColor: AppColors.darkGreen,
                               ),
                             ),
 
@@ -123,19 +120,21 @@ class _SettingsPageState extends State<SettingsPage> {
                                     Text(
                                       'وقت التذكير',
                                       style: AppTextStyles.small.copyWith(
-                                        color: AppColors.offWhite,
+                                        color: isDark
+                                            ? AppColors.offWhite
+                                            : AppColors.card,
                                         fontSize: 15,
                                       ),
                                     ),
                                     const Gap(6),
                                     const Icon(
                                       Icons.timer_outlined,
-                                      color: AppColors.primaryGreen,
+                                      color: AppColors.darkGreen,
                                       size: 20,
                                     ),
                                   ],
                                 ),
-                                const Gap(10),
+                                const Gap(12),
                                 GestureDetector(
                                   onTap: _notificationsEnabled
                                       ? _pickTime
@@ -147,7 +146,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                       vertical: 14,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.secondary,
+                                      color: _notificationsEnabled
+                                          ? AppColors.primaryGreen
+                                          : AppColors.mutedGray,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Row(
@@ -157,16 +158,14 @@ class _SettingsPageState extends State<SettingsPage> {
                                         Icon(
                                           Icons.access_time_rounded,
                                           color: _notificationsEnabled
-                                              ? AppColors.mediumGray
-                                              : AppColors.darkGray,
+                                              ? AppColors.offWhite
+                                              : AppColors.offWhite,
                                           size: 20,
                                         ),
                                         Text(
                                           _formattedTime,
                                           style: AppTextStyles.small.copyWith(
-                                            color: _notificationsEnabled
-                                                ? AppColors.offWhite
-                                                : AppColors.darkGray,
+                                            color: AppColors.offWhite,
                                             fontSize: 16,
                                           ),
                                         ),
@@ -201,6 +200,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                     decoration: TextDecoration.underline,
                                     decorationColor: AppColors.primaryGreen,
                                     decorationThickness: 2,
+                                    color: isDark
+                                        ? AppColors.lightGray
+                                        : AppColors.card,
                                   ),
                                 ),
                                 const Gap(8),
@@ -216,15 +218,16 @@ class _SettingsPageState extends State<SettingsPage> {
                             const Divider(color: AppColors.secondary),
                             const Gap(12),
 
-                            // ✅ الوضع الداكن
                             _SettingsTile(
                               title: 'الوضع الداكن',
                               subtitle: 'مفعل دائماً',
                               trailing: Switch(
-                                value: _darkModeEnabled,
-                                onChanged: (val) =>
-                                    setState(() => _darkModeEnabled = val),
-                                activeColor: AppColors.primaryGreen,
+                                value: isDark,
+                                onChanged: (value) =>
+                                    ref.read(ThemeRiverPod.notifier).state =
+                                        value,
+
+                                activeThumbColor: AppColors.darkGreen,
                               ),
                             ),
                           ],
@@ -242,7 +245,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         child: Center(
                           child: Column(
                             children: [
-                              Gap(1),
+                              const Gap(1),
                               Text(
                                 'الإصدار 1.0.0',
                                 style: AppTextStyles.small.copyWith(
@@ -299,7 +302,7 @@ class _SettingsPageState extends State<SettingsPage> {
 // ✅ Settings Tile Widget — عنوان + subtitle + trailing
 // ============================================================
 
-class _SettingsTile extends StatelessWidget {
+class _SettingsTile extends ConsumerWidget {
   final String title;
   final String subtitle;
   final Widget trailing;
@@ -311,7 +314,8 @@ class _SettingsTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(ThemeRiverPod);
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Row(
@@ -324,7 +328,7 @@ class _SettingsTile extends StatelessWidget {
               Text(
                 title,
                 style: AppTextStyles.small.copyWith(
-                  color: AppColors.offWhite,
+                  color: isDark ? AppColors.offWhite : AppColors.card,
                   fontSize: 15,
                 ),
               ),

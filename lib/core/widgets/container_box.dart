@@ -1,27 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 
-class ContainerBox extends StatefulWidget {
+class ContainerBox extends ConsumerWidget {
   const ContainerBox({super.key, required this.child, required this.padding});
 
   final Widget child;
   final EdgeInsetsGeometry padding;
 
-  @override
-  State<ContainerBox> createState() => _ContainerBoxState();
-}
+  static final _decoration = BoxDecoration(
+    color: AppColors.card,
+    border: Border.all(width: 2, color: AppColors.secondary),
+    borderRadius: BorderRadius.circular(20),
+  );
 
-class _ContainerBoxState extends State<ContainerBox> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(ThemeRiverPod);
     return Container(
-      padding: widget.padding,
+      padding: padding,
       decoration: BoxDecoration(
-        color: AppColors.card,
-        border: Border.all(width: 2, color: AppColors.secondary),
-        borderRadius: BorderRadius.circular(20)
+        color: isDark ? AppColors.card : AppColors.lightGray,
+        border: Border.all(
+          width: 2,
+          color: isDark ? AppColors.secondary : AppColors.mediumGray,
+        ),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: widget.child,
+      child: child,
     );
   }
 }

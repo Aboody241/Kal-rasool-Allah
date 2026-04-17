@@ -29,7 +29,7 @@ class AppTextStyles {
 
   // 🟢 Small Text
   static TextStyle small = ArabicTextStyle(
-    arabicFont: ArabicFont.cairo,
+    arabicFont: ArabicFont.amiri,
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.mutedGray,

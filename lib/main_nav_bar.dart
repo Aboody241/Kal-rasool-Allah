@@ -1,27 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/features/history/history_page.dart';
 import 'package:kal_rasol_allah/features/home/pages/home_page.dart';
 import 'package:kal_rasol_allah/features/setting/setting_page.dart';
+import 'package:kal_rasol_allah/features/tools/tools_screen.dart';
 
-class MainNavBar extends StatefulWidget {
+class MainNavBar extends ConsumerStatefulWidget {
   const MainNavBar({super.key});
 
   @override
-  State<MainNavBar> createState() => _MainNavBarState();
+  ConsumerState<MainNavBar> createState() => _MainNavBarState();
 }
 
-class _MainNavBarState extends State<MainNavBar> {
+class _MainNavBarState extends ConsumerState<MainNavBar> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
     const HomePage(),
+    const ToolsScreen(),
     const HistoryPage(),
     const SettingsPage(),
   ];
 
   final List<_NavItem> _items = const [
     _NavItem(icon: Icons.home_rounded, label: 'الرئيسية'),
+    _NavItem(icon: Icons.toc_outlined, label: 'الادوات'),
     _NavItem(icon: Icons.watch_later_outlined, label: 'السِجل'),
     _NavItem(icon: Icons.settings_outlined, label: 'الإعدادات'),
   ];
@@ -43,7 +48,7 @@ class _MainNavBarState extends State<MainNavBar> {
 // ✅ Custom NavBar — Style6 (icon + label, active = colored)
 // ============================================================
 
-class _CustomNavBar extends StatelessWidget {
+class _CustomNavBar extends ConsumerWidget {
   final int currentIndex;
   final List<_NavItem> items;
   final ValueChanged<int> onTap;
@@ -55,11 +60,12 @@ class _CustomNavBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(ThemeRiverPod);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.card,
-        border: Border(top: BorderSide(color: AppColors.secondary, width: 0.8)),
+        color: isDark? AppColors.card : AppColors.lightGray,
+        border: Border(top: BorderSide(color: isDark? AppColors.secondary: AppColors.lightGray, width: 0.8)),
       ),
       child: SafeArea(
         top: false,

@@ -1,25 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/core/widgets/container_box.dart';
+import 'package:kal_rasol_allah/core/widgets/pages_title.dart';
 
-class HistoryPage extends StatefulWidget {
+class HistoryPage extends ConsumerStatefulWidget {
   const HistoryPage({super.key});
 
   @override
-  State<HistoryPage> createState() => _HistoryPageState();
+  ConsumerState<HistoryPage> createState() => _HistoryPageState();
 }
 
-class _HistoryPageState extends State<HistoryPage> {
+class _HistoryPageState extends ConsumerState<HistoryPage> {
   // ✅ الأيام المكتملة
   final Set<int> completedDays = {1};
   final int totalDays = 30;
   DateTime _currentDate = DateTime.now();
 
-  // ✅ بناء EventList من الأيام المكتملة
+  // ✅ تخزين الـ markedDates بدل إعادة حسابها كل build
+  late EventList<Event> _markedDates = _buildMarkedDates();
+
   EventList<Event> _buildMarkedDates() {
     final Map<DateTime, List<Event>> events = {};
     for (final day in completedDays) {
@@ -29,11 +34,15 @@ class _HistoryPageState extends State<HistoryPage> {
     return EventList<Event>(events: events);
   }
 
+  void _updateMarkedDates() {
+    _markedDates = _buildMarkedDates();
+  }
+
   @override
   Widget build(BuildContext context) {
     final int completedCount = completedDays.length;
     final double progress = completedCount / totalDays;
-
+    final isDark = ref.watch(ThemeRiverPod);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -41,15 +50,10 @@ class _HistoryPageState extends State<HistoryPage> {
           child: Column(
             children: [
               const Gap(10),
-              Text('سجل التقدم', style: AppTextStyles.title),
-              const Gap(12),
-              Text(
-                'إستمر في المواظبة علي السُنن اليومية',
-                style: AppTextStyles.subTitle.copyWith(
-                  color: AppColors.darkGray,
-                ),
+        const      PagesTitle(
+                title: 'سجل التقدم',
+                subtitle: 'إستمر في المواظبة علي السُنن اليومية',
               ),
-              const Gap(30),
 
               // ✅ Progress Card
               ContainerBox(
@@ -62,7 +66,14 @@ class _HistoryPageState extends State<HistoryPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('هذا الشهر', style: AppTextStyles.subTitle),
+                        Text(
+                          'هذا الشهر',
+                          style: AppTextStyles.subTitle.copyWith(
+                            color: isDark
+                                ? AppColors.lightGray
+                                : AppColors.card,
+                          ),
+                        ),
                         Text(
                           '${(progress * 100).toStringAsFixed(0)}%',
                           style: AppTextStyles.subTitle.copyWith(
@@ -79,6 +90,9 @@ class _HistoryPageState extends State<HistoryPage> {
                       color: AppColors.primaryGreen,
                       borderRadius: BorderRadius.circular(50),
                       minHeight: 13,
+                      backgroundColor: isDark
+                          ? AppColors.mediumGray
+                          : AppColors.offWhite,
                     ),
                     const Gap(15),
                     Text(
@@ -106,7 +120,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     selectedDateTime: _currentDate,
 
                     // ✅ الأيام المكتملة
-                    markedDatesMap: _buildMarkedDates(),
+                    markedDatesMap: _markedDates,
 
                     // ✅ تخصيص كل يوم
                     customDayBuilder:
@@ -131,7 +145,9 @@ class _HistoryPageState extends State<HistoryPage> {
                             decoration: BoxDecoration(
                               color: isCompleted
                                   ? AppColors.primaryGreen
-                                  : AppColors.secondary,
+                                  : isDark
+                                  ? AppColors.secondary
+                                  : AppColors.mediumGray,
                               shape: BoxShape.circle,
                             ),
                             child: Center(
@@ -144,7 +160,9 @@ class _HistoryPageState extends State<HistoryPage> {
                                   : Text(
                                       '${day.day}',
                                       style: TextStyle(
-                                        color: AppColors.mediumGray,
+                                        color: isDark
+                                            ? AppColors.mediumGray
+                                            : AppColors.card,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -155,12 +173,18 @@ class _HistoryPageState extends State<HistoryPage> {
 
                     // ✅ تغيير الشهر بالسوايب
                     onCalendarChanged: (DateTime date) {
-                      setState(() => _currentDate = date);
+                      setState(() {
+                        _currentDate = date;
+                        _updateMarkedDates();
+                      });
                     },
 
                     // ✅ الضغط على يوم
                     onDayPressed: (DateTime date, List<Event> events) {
-                      setState(() => _currentDate = date);
+                      setState(() {
+                        _currentDate = date;
+                        _updateMarkedDates();
+                      });
                     },
 
                     // ✅ تنسيق الـ Header
@@ -168,7 +192,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     headerMargin: const EdgeInsets.only(bottom: 10),
 
                     // ✅ تنسيق أيام الأسبوع
-                    weekdayTextStyle: TextStyle(
+                    weekdayTextStyle: const TextStyle(
                       color: AppColors.darkGray,
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -192,7 +216,7 @@ class _HistoryPageState extends State<HistoryPage> {
                   ),
                 ),
               ),
-              Gap(20),
+              const Gap(20),
 
               Text(
                 '"إن احب الاعمال إلي الله ادومها وإن قل"',

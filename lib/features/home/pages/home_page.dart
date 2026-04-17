@@ -1,71 +1,29 @@
 import 'package:arabic_font/arabic_font.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:kal_rasol_allah/core/const/consts.dart';
+import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/core/widgets/custom_buttons.dart';
+import 'package:kal_rasol_allah/features/home/widgets/home_appbar.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
+  static final _greenBarDecoration = BoxDecoration(
+    color: AppColors.primaryGreen,
+    borderRadius: BorderRadius.circular(50),
+  );
 
-class _HomePageState extends State<HomePage> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(ThemeRiverPod);
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.black,
-        title: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10), // ✅
-              child: Image.asset(Appconsts.mainLogo, height: 50, width: 50),
-            ),
-            const Gap(10), // ✅ const
-            Text(
-              'قال رسول الله',
-              style: AppTextStyles.small.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.mediumGray,
-              ),
-            ),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 5,
-              ), // ✅ const
-              decoration: BoxDecoration(
-                color: AppColors.secondary,
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: AppColors.gold),
-              ),
-              child: Row(
-                children: [
-                  Text(
-                    '5',
-                    style: AppTextStyles.small.copyWith(
-                      color: AppColors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                    ),
-                  ),
-                  const Gap(5), // ✅ const
-                  const Icon(
-                    Icons.local_fire_department,
-                    size: 28,
-                    color: Colors.orange,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(58),
+        child: const HomeAppbar(),
       ),
 
       body: Center(
@@ -76,38 +34,40 @@ class _HomePageState extends State<HomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: double.infinity, // ✅ infinity بدل maxFinite
+                  width: double.infinity,
                   padding: const EdgeInsets.symmetric(
-                    vertical: 35,
+                    vertical: 28,
                     horizontal: 12,
-                  ), // ✅ const
+                  ),
                   decoration: BoxDecoration(
-                    color: AppColors.card,
+                    color: isDark ? AppColors.card : AppColors.lightGray,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.secondary, width: 2.5),
+                    border: Border.all(
+                      color: isDark
+                          ? AppColors.secondary
+                          : AppColors.mediumGray,
+                      width: 2.5,
+                    ),
                   ),
                   child: Column(
                     children: [
                       Container(
                         height: 4,
                         width: 80,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryGreen,
-                          borderRadius: BorderRadius.circular(50),
-                        ),
+                        decoration: _greenBarDecoration,
                       ),
-                      const Gap(20), // ✅ const
+                      const Gap(25),
                       Text(
                         'قال رسول الله صلي الله عليه وسلم التبسم في وجه اخيك صدقة',
                         style: ArabicTextStyle(
                           fontSize: 32,
                           arabicFont: ArabicFont.amiri,
-                          color: AppColors.offWhite,
+                          color: isDark ? AppColors.offWhite : Colors.black,
                           fontWeight: FontWeight.w600,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const Gap(30), // ✅ const
+                      const Gap(30),
                       Text(
                         'رواه مُسلم',
                         style: TextStyle(
@@ -116,49 +76,56 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const Gap(20), // ✅ const
+                      const Gap(25),
                       Container(
                         height: 4,
                         width: 80,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryGreen,
-                          borderRadius: BorderRadius.circular(50),
-                        ),
+                        decoration: _greenBarDecoration,
                       ),
                     ],
                   ),
                 ),
-                const Gap(50), // ✅ const
+                const Gap(50),
                 PrimaryButton(
                   widget: Center(
                     child: Text('تم التطبيق', style: AppTextStyles.buttont),
                   ),
                   ontap: () {},
                 ),
-                const Gap(20), // ✅ const
+                const Gap(20),
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.secondary, width: 2.5),
+                    border: Border.all(
+                      color: isDark
+                          ? AppColors.secondary
+                          : const Color.fromARGB(255, 169, 169, 177),
+                      width: 2.5,
+                    ),
                   ),
                   child: PrimaryButton(
                     widget: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('مشاركة', style: AppTextStyles.buttont),
-                        const Gap(5), // ✅ const
-                        const Icon(
+                        Text(
+                          'مشاركة',
+                          style: AppTextStyles.buttont.copyWith(
+                            color: isDark ? AppColors.offWhite : AppColors.card,
+                          ),
+                        ),
+                        const Gap(5),
+                        Icon(
                           Icons.share,
-                          color: AppColors.white,
+                          color: isDark ? AppColors.white : AppColors.card,
                           size: 22,
                         ),
                       ],
                     ),
-                    backGround: AppColors.card,
+                    backGround: isDark ? AppColors.card : AppColors.offWhite,
                     ontap: () {},
                   ),
                 ),
-                const Gap(20), // ✅ const
+                const Gap(20),
                 Text('إضغط عند تطبيق سُنة اليوم', style: AppTextStyles.small),
               ],
             ),

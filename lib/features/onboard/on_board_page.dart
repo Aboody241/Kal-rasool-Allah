@@ -1,20 +1,22 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
 import 'package:kal_rasol_allah/core/const/consts.dart';
 import 'package:kal_rasol_allah/core/routes/approuter.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/core/widgets/custom_buttons.dart';
 
-class OnboardScreen extends StatefulWidget {
+class OnboardScreen extends ConsumerStatefulWidget {
   const OnboardScreen({super.key});
 
   @override
-  State<OnboardScreen> createState() => _OnboardScreenState();
+  ConsumerState<OnboardScreen> createState() => _OnboardScreenState();
 }
 
-class _OnboardScreenState extends State<OnboardScreen> {
+class _OnboardScreenState extends ConsumerState<OnboardScreen> {
   double currentIndex = 0;
   late PageController pageController; // ✅ إصلاح الـ typo
 
@@ -48,13 +50,14 @@ class _OnboardScreenState extends State<OnboardScreen> {
       icon: Icons.calendar_month_outlined,
       title: 'سجِل إنجازاتك',
       subtitle: 'تابع تاريخك وشاهد تقدمك يوماً بعد يوم',
-      iconColor: AppColors.white,
+      iconColor: AppColors.mutedGray,
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
     final isLast = currentIndex == onboardData.length - 1;
+    final isDark = ref.watch(ThemeRiverPod);
 
     return Scaffold(
       body: SafeArea(
@@ -92,7 +95,9 @@ class _OnboardScreenState extends State<OnboardScreen> {
                           const Gap(50), // ✅ const
                           Text(
                             onboardData[index].title,
-                            style: AppTextStyles.title,
+                            style: AppTextStyles.title.copyWith(
+                              color: isDark ? AppColors.white : AppColors.card,
+                            ),
                           ),
                           const Gap(20), // ✅ const
                           Padding(
@@ -117,9 +122,7 @@ class _OnboardScreenState extends State<OnboardScreen> {
                 dotsCount: onboardData.length,
                 position: currentIndex,
                 animate: true,
-                animationDuration: const Duration(
-                  milliseconds: 200,
-                ), // ✅ const
+                animationDuration: const Duration(milliseconds: 200), // ✅ const
                 decorator: DotsDecorator(activeColor: AppColors.primaryGreen),
               ),
               const Gap(30), // ✅ const

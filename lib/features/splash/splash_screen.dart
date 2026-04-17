@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
 import 'package:kal_rasol_allah/core/routes/approuter.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   bool isSlide = false;
 
   @override
@@ -33,20 +35,21 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ref.watch(ThemeRiverPod);
     return Scaffold(
       body: Center(
         child: Column(
           children: [
-            Gap(120),
+            const Gap(120),
             ClipRRect(
               borderRadius: BorderRadiusGeometry.circular(30),
               child: Image.asset(
-                'assets/consts/logo.png',
+                'assets/consts/logo.jpg',
                 width: 150,
                 height: 150,
               ),
             ),
-            Gap(50),
+            const Gap(50),
             AnimatedSlide(
               // ✅ Start below, animate up to natural position
               offset: Offset(0, isSlide ? 0 : 0.3),
@@ -58,25 +61,34 @@ class _SplashScreenState extends State<SplashScreen> {
                 duration: const Duration(milliseconds: 1000),
                 child: Column(
                   children: [
-                    Text("مرحبًا بك", style: AppTextStyles.title),
+                    Text(
+                      "مرحبًا بك",
+                      style: AppTextStyles.title.copyWith(
+                        color: isDark ? AppColors.white : AppColors.card,
+                      ),
+                    ),
                     const Gap(10),
                     Text(
                       "ابدأ رحلتك مع تطبيق قال رسول الله ﷺ",
                       textAlign: TextAlign.center,
-                      style: AppTextStyles.subTitle,
+                      style: AppTextStyles.subTitle.copyWith(
+                        color: isDark
+                            ? AppColors.lightGray
+                            : AppColors.darkGray,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
 
-            Spacer(),
-            CircularProgressIndicator(
+            const Spacer(),
+            const CircularProgressIndicator(
               backgroundColor: AppColors.darkGreen,
               color: AppColors.lightGreen,
               strokeWidth: 5,
             ),
-            Gap(100),
+            const Gap(100),
           ],
         ),
       ),
