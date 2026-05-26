@@ -126,7 +126,7 @@ class DuaaScreen extends ConsumerWidget {
                                 onPressed: () {},
 
                                 icon: Icon(
-                                  Icons.more_horiz_rounded,
+                                  Icons.share,
                                   color: AppColors.lightGray,
                                 ),
                               ),

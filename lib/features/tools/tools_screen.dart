@@ -15,7 +15,7 @@ class ToolsScreen extends ConsumerWidget {
     _ToolItem(
       title: 'السبحة',
       icon: _IconWidget(
-        imagepath: 'assets/icnos/sebha_icon.svg',
+        imagepath: 'assets/icons/sebha_icon.svg',
         width: 50,
         height: 50,
       ),
@@ -24,7 +24,7 @@ class ToolsScreen extends ConsumerWidget {
     _ToolItem(
       title: 'الأدعية',
       icon: _IconWidget(
-        imagepath: 'assets/icnos/duaa_icon.svg',
+        imagepath: 'assets/icons/duaa_icon.svg',
         width: 50,
         height: 50,
       ),
@@ -33,7 +33,7 @@ class ToolsScreen extends ConsumerWidget {
     _ToolItem(
       title: 'اسماء الله الحسنى',
       icon: _IconWidget(
-        imagepath: 'assets/icnos/smaa_allah.svg',
+        imagepath: 'assets/icons/smaa_allah.svg',
         width: 50,
         height: 50,
       ),
@@ -42,7 +42,7 @@ class ToolsScreen extends ConsumerWidget {
     _ToolItem(
       title: 'القِبلة',
       icon: _IconWidget(
-        imagepath: 'assets/icnos/qibla_icon.svg',
+        imagepath: 'assets/icons/qibla_icon.svg',
         width: 50,
         height: 50,
       ),
@@ -51,7 +51,7 @@ class ToolsScreen extends ConsumerWidget {
     _ToolItem(
       title: 'قائمة المفضلة',
       icon: _IconWidget(
-        imagepath: 'assets/icnos/save_icon.svg',
+        imagepath: 'assets/icons/save_icon.svg',
         width: 50,
         height: 50,
       ),
@@ -77,7 +77,7 @@ class ToolsScreen extends ConsumerWidget {
                 ),
                 Expanded(
                   child: GridView.builder(
-                    padding: const EdgeInsets.only(top: 50), // ✅ const
+                    padding: const EdgeInsets.only(top: 40), // ✅ const
                     itemCount: _toolItems.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
