@@ -30,8 +30,12 @@ class KalRasoolAllah extends ConsumerWidget {
 
       theme: ThemeData(scaffoldBackgroundColor: AppColors.offWhite),
       darkTheme: ThemeData(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 15, 15, 15),
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Colors.black,
+        canvasColor: Colors.black,
         fontFamily: ArabicFont.cairo,
+        splashColor: Colors.black,
+        dialogBackgroundColor: Colors.black,
       ),
       themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
 

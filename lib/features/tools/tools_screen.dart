@@ -3,15 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
+import 'package:kal_rasol_allah/core/routes/approuter.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
-import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/core/widgets/container_box.dart';
 import 'package:kal_rasol_allah/core/widgets/pages_title.dart';
 
 class ToolsScreen extends ConsumerWidget {
   const ToolsScreen({super.key});
 
-  static const List<_ToolItem> _toolItems = [
+  static final List<_ToolItem> _toolItems = [
     _ToolItem(
       title: 'السبحة',
       icon: _IconWidget(
@@ -19,6 +19,7 @@ class ToolsScreen extends ConsumerWidget {
         width: 50,
         height: 50,
       ),
+      onTap: (context) => Navigator.pushNamed(context, Approuter.sebhaScreen),
     ),
     _ToolItem(
       title: 'الأدعية',
@@ -27,6 +28,7 @@ class ToolsScreen extends ConsumerWidget {
         width: 50,
         height: 50,
       ),
+      onTap: (context) => Navigator.pushNamed(context, Approuter.duaaScreen),
     ),
     _ToolItem(
       title: 'اسماء الله الحسنى',
@@ -35,6 +37,7 @@ class ToolsScreen extends ConsumerWidget {
         width: 50,
         height: 50,
       ),
+      onTap: (context) => Navigator.pushNamed(context, Approuter.namesOfAllahScreen),
     ),
     _ToolItem(
       title: 'القِبلة',
@@ -43,12 +46,22 @@ class ToolsScreen extends ConsumerWidget {
         width: 50,
         height: 50,
       ),
+      onTap: (context) => Navigator.pushNamed(context, Approuter.qiblaScreen),
+    ),
+    _ToolItem(
+      title: 'قائمة المفضلة',
+      icon: _IconWidget(
+        imagepath: 'assets/icnos/save_icon.svg',
+        width: 50,
+        height: 50,
+      ),
+      onTap: (context) => Navigator.pushNamed(context, Approuter.favoriteScreen),
     ),
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = ref.watch(ThemeRiverPod);
+    ref.watch(ThemeRiverPod);
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -58,7 +71,10 @@ class ToolsScreen extends ConsumerWidget {
               children: [
                 const Gap(10),
 
-        const    PagesTitle(title: 'الأدوات', subtitle: 'جزء للأدعية والأذكار وبعض الادوات'),
+                const PagesTitle(
+                  title: 'الأدوات',
+                  subtitle: 'جزء للأدعية والأذكار وبعض الادوات',
+                ),
                 Expanded(
                   child: GridView.builder(
                     padding: const EdgeInsets.only(top: 50), // ✅ const
@@ -74,7 +90,7 @@ class ToolsScreen extends ConsumerWidget {
                       final item = _toolItems[index];
                       return InkWell(
                         // ✅ ربطنا الـ onTap
-                        onTap: item.onTap,
+                        onTap: item.onTap != null ? () => item.onTap!(context) : null,
                         borderRadius: BorderRadius.circular(12),
                         child: ContainerBox(
                           padding: const EdgeInsets.symmetric(), // ✅ const
@@ -116,9 +132,9 @@ class _IconWidget extends StatelessWidget {
 class _ToolItem {
   final String title;
   final Widget icon;
-  final VoidCallback? onTap; // ✅ nullable عشان مش كل item لازم يكون عنده action
+  final void Function(BuildContext)? onTap; // ✅ nullable — يستقبل context وقت الضغط
 
-  const _ToolItem({
+  const  _ToolItem({
     // ✅ const constructor
     required this.title,
     required this.icon,

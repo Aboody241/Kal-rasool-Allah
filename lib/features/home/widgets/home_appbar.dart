@@ -46,7 +46,7 @@ class HomeAppbar extends ConsumerWidget {
             child: Row(
               children: [
                 Text(
-                  '5',
+                  '0',
                   style: AppTextStyles.small.copyWith(
                     color: isDark ? AppColors.white : AppColors.card,
                     fontWeight: FontWeight.w600,

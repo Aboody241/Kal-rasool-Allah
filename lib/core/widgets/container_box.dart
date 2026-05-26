@@ -9,11 +9,6 @@ class ContainerBox extends ConsumerWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
 
-  static final _decoration = BoxDecoration(
-    color: AppColors.card,
-    border: Border.all(width: 2, color: AppColors.secondary),
-    borderRadius: BorderRadius.circular(20),
-  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

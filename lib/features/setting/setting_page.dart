@@ -220,7 +220,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
                             _SettingsTile(
                               title: 'الوضع الداكن',
-                              subtitle: 'مفعل دائماً',
+                              subtitle: '(الوضع الأفتراضي)',
                               trailing: Switch(
                                 value: isDark,
                                 onChanged: (value) =>
