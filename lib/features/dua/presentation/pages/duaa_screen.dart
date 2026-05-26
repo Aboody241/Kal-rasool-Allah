@@ -8,7 +8,6 @@ import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/core/widgets/container_box.dart';
 import 'package:kal_rasol_allah/features/dua/controller/dua_provider.dart';
-import 'package:kal_rasol_allah/features/dua/data/dua_list.dart';
 
 class DuaaScreen extends ConsumerWidget {
   const DuaaScreen({super.key});
@@ -73,102 +72,136 @@ class DuaaScreen extends ConsumerWidget {
               const Gap(20),
 
               // Optional: You can add Category tabs/chips here later using duaState.selectedCategory
-              
               Expanded(
                 child: duaState.isLoading
                     ? Center(
                         child: CircularProgressIndicator(
-                          color: isDark ? AppColors.gold : AppColors.primaryGreen,
+                          color: isDark
+                              ? AppColors.gold
+                              : AppColors.primaryGreen,
                         ),
                       )
                     : duaState.errorMessage != null
-                        ? Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                'حدث خطأ: ${duaState.errorMessage}',
-                                style: const TextStyle(color: Colors.red, fontSize: 16),
-                                textAlign: TextAlign.center,
-                              ),
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            'حدث خطأ: ${duaState.errorMessage}',
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 16,
                             ),
-                          )
-                        : ListView.builder(
-                            itemCount: displayedDuas.length,
-                            itemBuilder: (context, index) {
-                    final dua = displayedDuas[index];
-                    final isFavorite = duaNotifier.isFavorite(dua.id);
-
-                    return ContainerBox(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.only(bottom: 30),
-                      borderRadius: BorderRadius.circular(15),
-
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  duaNotifier.toggleFavorite(dua.id);
-                                },
-                                icon: Icon(
-                                  isFavorite
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: isFavorite
-                                      ? Colors.red
-                                      : AppColors.lightGray,
-                                ),
-                              ),
-
-                              IconButton(
-                                onPressed: () {},
-
-                                icon: Icon(
-                                  Icons.share,
-                                  color: AppColors.lightGray,
-                                ),
-                              ),
-                            ],
+                            textAlign: TextAlign.center,
                           ),
-                          const Gap(10),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: displayedDuas.length,
+                        itemBuilder: (itemContext, index) {
+                          final dua = displayedDuas[index];
+                          final isFavorite = duaNotifier.isFavorite(dua.id);
+
+                          return ContainerBox(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.only(bottom: 30),
+                            borderRadius: BorderRadius.circular(15),
+
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                Text(
-                                  dua.text,
-                                  textAlign: TextAlign.start,
-                                  style: ArabicTextStyle(
-                                    arabicFont: ArabicFont.dubai,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.lightGray,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        duaNotifier.toggleFavorite(dua.id);
+                                        
+                                        ScaffoldMessenger.of(context).clearSnackBars();
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              isFavorite
+                                                  ? 'تمت الإزالة من المفضلة'
+                                                  : 'تمت الإضافة للمفضلة',
+                                              style: const TextStyle(
+                                                fontFamily: 'Cairo',
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            backgroundColor: isFavorite
+                                                ? Colors.grey.shade800
+                                                : AppColors.primaryGreen,
+                                            behavior: SnackBarBehavior.floating,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                            duration: const Duration(
+                                              seconds: 2,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      icon: Icon(
+                                        isFavorite
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color: isFavorite
+                                            ? Colors.red
+                                            : AppColors.lightGray,
+                                      ),
+                                    ),
+
+                                    IconButton(
+                                      onPressed: () {},
+
+                                      icon: Icon(
+                                        Icons.ios_share_rounded,
+                                        color: AppColors.lightGray,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Gap(10),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text(
+                                        dua.text,
+                                        textAlign: TextAlign.start,
+                                        style: ArabicTextStyle(
+                                          arabicFont: ArabicFont.dubai,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.lightGray,
+                                        ),
+                                      ),
+                                      if (dua.source != null) ...[
+                                        const Gap(15),
+                                        Text(
+                                          dua.source!,
+                                          textAlign: TextAlign.start,
+                                          style: TextStyle(
+                                            fontFamily: ArabicFont.amiri,
+                                            color: AppColors.gold,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
                                 ),
-                                if (dua.source != null) ...[
-                                  const Gap(15),
-                                  Text(
-                                    dua.source!,
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                      fontFamily: ArabicFont.amiri,
-                                      color: AppColors.gold,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
                               ],
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    );
-                  },
-                    ),
               ),
             ],
           ),
