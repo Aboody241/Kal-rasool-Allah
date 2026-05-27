@@ -35,6 +35,13 @@ class _QiblaScreenState extends ConsumerState<QiblaScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Pre-cache the selected background image to load it instantly
+    precacheImage(AssetImage(_selectedBackground), context);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final status =
         ref.watch(qiblaControllerProvider.select((s) => s.status));
@@ -53,6 +60,8 @@ class _QiblaScreenState extends ConsumerState<QiblaScreen> {
             child: Image.asset(
               _selectedBackground,
               fit: BoxFit.cover,
+              gaplessPlayback: true, // Prevents flicker when widget rebuilds
+              cacheWidth: 1080, // Optimizes decoded memory size and loading speed
             ),
           ),
 
