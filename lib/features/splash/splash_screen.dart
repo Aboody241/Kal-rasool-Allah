@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
 import 'package:kal_rasol_allah/core/routes/approuter.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
@@ -25,10 +26,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       }
     });
 
-    // Navigate after 3 seconds
+    // Navigate after 3 seconds — check if onboarding was already seen
     Future.delayed(const Duration(milliseconds: 2700), () {
       if (mounted) {
-        Navigator.pushReplacementNamed(context, Approuter.onboardScreen);
+        final box = Hive.box('streak_box');
+        final bool hasSeenOnboarding = box.get('onboarding_seen', defaultValue: false);
+
+        if (hasSeenOnboarding) {
+          // ✅ المستخدم شاف الـ onboarding قبل كده — روح للصفحة الرئيسية مباشرة
+          Navigator.pushReplacementNamed(context, Approuter.mainNavbar);
+        } else {
+          // ✅ أول مرة — اعرض الـ onboarding
+          Navigator.pushReplacementNamed(context, Approuter.onboardScreen);
+        }
       }
     });
   }

@@ -2,6 +2,7 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
 import 'package:kal_rasol_allah/core/const/consts.dart';
 import 'package:kal_rasol_allah/core/routes/approuter.dart';
@@ -158,6 +159,8 @@ class _OnboardScreenState extends ConsumerState<OnboardScreen> {
                   curve: Curves.easeInOut,
                 );
               } else {
+                // ✅ احفظ إن المستخدم شاف الـ onboarding — مش هيظهر تاني
+                Hive.box('streak_box').put('onboarding_seen', true);
                 Navigator.pushReplacementNamed(context, Approuter.mainNavbar);
               }
             },
