@@ -6,6 +6,7 @@ import 'package:kal_rasol_allah/features/home/pages/home_page.dart';
 import 'package:kal_rasol_allah/features/onboard/on_board_page.dart';
 import 'package:kal_rasol_allah/features/setting/setting_page.dart';
 import 'package:kal_rasol_allah/features/splash/splash_screen.dart';
+import 'package:kal_rasol_allah/features/tools/screens/azkar_screen.dart';
 import 'package:kal_rasol_allah/features/tools/screens/favorite_screen.dart';
 import 'package:kal_rasol_allah/features/sebha/presentation/pages/sebha_screen.dart';
 import 'package:kal_rasol_allah/features/dua/presentation/pages/duaa_screen.dart';
@@ -29,7 +30,7 @@ class Approuter {
   static const String duaaScreen = '/duaaScreen';
   static const String namesOfAllahScreen = '/namesOfAllahScreen';
   static const String qiblaScreen = '/qiblaScreen';
-
+  static const String azkarScreen = '/azkarScreen';
   static Route<dynamic> generateroute(RouteSettings setting) {
     switch (setting.name) {
       case splashScreen:
@@ -48,18 +49,44 @@ class Approuter {
         return MaterialPageRoute(builder: (_) => const ToolsScreen());
       case favoriteScreen:
         return MaterialPageRoute(builder: (_) => const FavoriteScreen());
-      // New cases
+      // New cases with smooth transition animation
       case sebhaScreen:
-        return MaterialPageRoute(builder: (_) => const SebhaScreen());
+        return _customPageRoute(const SebhaScreen());
       case duaaScreen:
-        return MaterialPageRoute(builder: (_) => const DuaaScreen());
+        return _customPageRoute(const DuaaScreen());
       case namesOfAllahScreen:
-        return MaterialPageRoute(builder: (_) => const NamesOfAllahScreen());
+        return _customPageRoute(const NamesOfAllahScreen());
       case qiblaScreen:
-        return MaterialPageRoute(builder: (_) => const QiblaScreen());
+        return _customPageRoute(const QiblaScreen());
+      case azkarScreen:
+        return _customPageRoute(const AzkarScreen());
       default:
         return MaterialPageRoute(builder: (_) => const NotfoundScreen());
     }
+  }
+
+  // A helper method for clean, custom slide and fade transition page routing
+  static Route<dynamic> _customPageRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.12, 0.0); // Subtle horizontal slide
+        const end = Offset.zero;
+        const curve = Curves.easeOutCubic;
+
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 320),
+    );
   }
 }
 

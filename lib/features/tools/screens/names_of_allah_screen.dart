@@ -33,10 +33,10 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
   void _startSearch() => setState(() => _isSearching = true);
 
   void _stopSearch() => setState(() {
-        _isSearching = false;
-        _query = '';
-        _searchController.clear();
-      });
+    _isSearching = false;
+    _query = '';
+    _searchController.clear();
+  });
 
   void _onQueryChanged(String val) => setState(() => _query = val.trim());
 
@@ -46,8 +46,10 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
       key: const ValueKey('search'),
       children: [
         IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              color: isDark ? AppColors.white : AppColors.card),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: isDark ? AppColors.white : AppColors.card,
+          ),
           onPressed: _stopSearch,
         ),
         Expanded(
@@ -81,8 +83,10 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
-          icon: Icon(Icons.arrow_back_ios_new,
-              color: isDark ? AppColors.white : AppColors.card),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: isDark ? AppColors.white : AppColors.card,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         Text(
@@ -93,9 +97,11 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
         ),
         IconButton(
           onPressed: _startSearch,
-          icon: Icon(Icons.search,
-              size: 32,
-              color: isDark ? AppColors.white : AppColors.card),
+          icon: Icon(
+            Icons.search,
+            size: 32,
+            color: isDark ? AppColors.white : AppColors.card,
+          ),
         ),
       ],
     );
@@ -106,11 +112,14 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.search_off_rounded,
-              size: 60, color: AppColors.mediumGray),
+          const Icon(
+            Icons.search_off_rounded,
+            size: 60,
+            color: AppColors.mediumGray,
+          ),
           const Gap(12),
           Text(
-            'لا توجد نتائج لـ "$_query"',
+            'لا توجد نتائج',
             style: const TextStyle(
               fontFamily: ArabicFont.cairo,
               color: AppColors.mediumGray,
@@ -126,11 +135,13 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
     final filtered = _query.isEmpty
         ? names
         : names
-            .where((n) =>
-                n.name.contains(_query) ||
-                n.meaning.contains(_query) ||
-                n.description.contains(_query))
-            .toList();
+              .where(
+                (n) =>
+                    n.name.contains(_query) ||
+                    n.meaning.contains(_query) ||
+                    n.description.contains(_query),
+              )
+              .toList();
 
     if (filtered.isEmpty) return _buildEmptyState();
 
@@ -318,10 +329,7 @@ class _AllahNameItemState extends State<_AllahNameItem>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Gap(12),
-                    const Divider(
-                      color: AppColors.secondary,
-                      height: 1,
-                    ),
+                    const Divider(color: AppColors.secondary, height: 1),
                     const Gap(10),
                     Text(
                       widget.description,

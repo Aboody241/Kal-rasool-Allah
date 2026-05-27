@@ -50,6 +50,15 @@ class ToolsScreen extends ConsumerWidget {
       onTap: (context) => Navigator.pushNamed(context, Approuter.qiblaScreen),
     ),
     _ToolItem(
+      title: 'الاذكار',
+      icon: _IconWidget(
+        imagepath: 'assets/icons/azkar_icon.svg',
+        width: 50,
+        height: 50,
+      ),
+      onTap: (context) => Navigator.pushNamed(context, Approuter.azkarScreen),
+    ),
+    _ToolItem(
       title: 'قائمة المفضلة',
       icon: _IconWidget(
         imagepath: 'assets/icons/save_icon.svg',
