@@ -9,6 +9,7 @@ class StreakState {
   final int dailyPoints;
   final Map<String, dynamic> levelInfo;
   final bool streakJustIncremented;
+  final Set<DateTime> allCompletedDates;
 
   StreakState({
     this.currentStreak = 0,
@@ -17,6 +18,7 @@ class StreakState {
     this.dailyPoints = 0,
     this.levelInfo = const {'level': 1, 'progress': 0.0},
     this.streakJustIncremented = false,
+    this.allCompletedDates = const {},
   });
 
   StreakState copyWith({
@@ -26,6 +28,7 @@ class StreakState {
     int? dailyPoints,
     Map<String, dynamic>? levelInfo,
     bool? streakJustIncremented,
+    Set<DateTime>? allCompletedDates,
   }) {
     return StreakState(
       currentStreak: currentStreak ?? this.currentStreak,
@@ -34,6 +37,7 @@ class StreakState {
       dailyPoints: dailyPoints ?? this.dailyPoints,
       levelInfo: levelInfo ?? this.levelInfo,
       streakJustIncremented: streakJustIncremented ?? this.streakJustIncremented,
+      allCompletedDates: allCompletedDates ?? this.allCompletedDates,
     );
   }
 }
@@ -53,6 +57,8 @@ class StreakNotifier extends StateNotifier<StreakState> {
       final currentStreak = stats['currentStreak'] as int;
       final longestStreak = stats['longestStreak'] as int;
       final hasCompletedToday = stats['hasCompletedToday'] as bool;
+      final Set<String> datesStrs = stats['allCompletedDates'] as Set<String>? ?? {};
+      final Set<DateTime> dates = datesStrs.map((s) => DateTime.parse(s)).toSet();
       
       // The streakJustIncremented logic: if streak > 0 and hasCompletedToday is true,
       // we check if currentStreak increased from our previous state.
@@ -69,6 +75,7 @@ class StreakNotifier extends StateNotifier<StreakState> {
         dailyPoints: stats['dailyPoints'] as int,
         levelInfo: stats['levelInfo'] as Map<String, dynamic>,
         streakJustIncremented: streakJustIncremented,
+        allCompletedDates: dates,
       );
     } catch (e) {
       // Fallback

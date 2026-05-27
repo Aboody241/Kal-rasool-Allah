@@ -8,6 +8,7 @@ import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/core/widgets/container_box.dart';
 import 'package:kal_rasol_allah/core/widgets/pages_title.dart';
+import 'package:kal_rasol_allah/features/home/controllers/streak_provider.dart';
 
 class HistoryPage extends ConsumerStatefulWidget {
   const HistoryPage({super.key});
@@ -17,32 +18,42 @@ class HistoryPage extends ConsumerStatefulWidget {
 }
 
 class _HistoryPageState extends ConsumerState<HistoryPage> {
-  // ✅ الأيام المكتملة
-  final Set<int> completedDays = {1};
-  final int totalDays = 30;
   DateTime _currentDate = DateTime.now();
 
   // ✅ تخزين الـ markedDates بدل إعادة حسابها كل build
-  late EventList<Event> _markedDates = _buildMarkedDates();
+  late EventList<Event> _markedDates = _buildMarkedDates({});
 
-  EventList<Event> _buildMarkedDates() {
+  EventList<Event> _buildMarkedDates(Set<DateTime> allDates) {
     final Map<DateTime, List<Event>> events = {};
-    for (final day in completedDays) {
-      final date = DateTime(_currentDate.year, _currentDate.month, day);
-      events[date] = [Event(date: date)];
+    for (final date in allDates) {
+      final normalizedDate = DateTime(date.year, date.month, date.day);
+      events[normalizedDate] = [Event(date: normalizedDate)];
     }
     return EventList<Event>(events: events);
   }
 
-  void _updateMarkedDates() {
-    _markedDates = _buildMarkedDates();
+  void _updateMarkedDates(Set<DateTime> allDates) {
+    _markedDates = _buildMarkedDates(allDates);
   }
 
   @override
   Widget build(BuildContext context) {
-    final int completedCount = completedDays.length;
-    final double progress = completedCount / totalDays;
     final isDark = ref.watch(ThemeRiverPod);
+    final streakState = ref.watch(streakProvider);
+    
+    // التواريخ المكتملة
+    final allCompletedDates = streakState.allCompletedDates;
+    
+    // عدد أيام الشهر الحالي لحساب نسبة التقدم
+    final int totalDaysInMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0).day;
+    
+    // عدد الأيام المكتملة في هذا الشهر فقط
+    final int completedCountThisMonth = allCompletedDates.where((d) => d.year == _currentDate.year && d.month == _currentDate.month).length;
+    
+    final double progress = completedCountThisMonth / totalDaysInMonth;
+    
+    // Update marked dates efficiently
+    _markedDates = _buildMarkedDates(allCompletedDates);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -96,7 +107,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                     ),
                     const Gap(15),
                     Text(
-                      '$completedCount من $totalDays يوم',
+                      '$completedCountThisMonth من $totalDaysInMonth يوم',
                       style: AppTextStyles.small.copyWith(fontSize: 16),
                     ),
                   ],
@@ -135,9 +146,8 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                           bool isThisMonthDay,
                           DateTime day,
                         ) {
-                          final bool isCompleted =
-                              completedDays.contains(day.day) &&
-                              day.month == _currentDate.month;
+                          // Check if this specific day is in the completed dates set
+                          final bool isCompleted = allCompletedDates.any((d) => d.year == day.year && d.month == day.month && d.day == day.day);
 
                           if (!isThisMonthDay) return null;
 
@@ -175,7 +185,6 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                     onCalendarChanged: (DateTime date) {
                       setState(() {
                         _currentDate = date;
-                        _updateMarkedDates();
                       });
                     },
 
@@ -183,7 +192,6 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                     onDayPressed: (DateTime date, List<Event> events) {
                       setState(() {
                         _currentDate = date;
-                        _updateMarkedDates();
                       });
                     },
 

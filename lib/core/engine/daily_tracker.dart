@@ -8,11 +8,13 @@ class DailyTracker {
   static const String _kRecentCompletedIds = 'engine_recent_completed_ids';
   static const String _kHasCompletedToday = 'engine_has_completed_today';
   static const String _kTodaySelectedIds = 'engine_today_selected_ids';
+  static const String _kAllCompletedDates = 'engine_all_completed_dates';
 
   String _lastActiveDate = '';
   Set<int> _todayCompletedIds = {};
   List<int> _todaySelectedIds = [];
   List<int> _recentHistory = [];
+  Set<String> _allCompletedDates = {};
   bool _hasCompletedToday = false;
 
   DailyTracker(this._storage);
@@ -28,6 +30,9 @@ class DailyTracker {
 
     final selectedIdsList = await _storage.read(_kTodaySelectedIds) ?? [];
     _todaySelectedIds = List<int>.from(selectedIdsList.cast<int>());
+
+    final allDatesList = await _storage.read(_kAllCompletedDates) ?? [];
+    _allCompletedDates = Set<String>.from(allDatesList.cast<String>());
 
     _hasCompletedToday = await _storage.read(_kHasCompletedToday) ?? false;
   }
@@ -81,6 +86,14 @@ class DailyTracker {
     if (!_hasCompletedToday) {
       _hasCompletedToday = true;
       _saveData(_kHasCompletedToday, _hasCompletedToday);
+
+      // Track this date as a completed date
+      final now = DateTime.now();
+      final todayStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+      if (!_allCompletedDates.contains(todayStr)) {
+        _allCompletedDates.add(todayStr);
+        _saveData(_kAllCompletedDates, _allCompletedDates.toList());
+      }
     }
     
     return wasFirstCompletion;
@@ -97,6 +110,8 @@ class DailyTracker {
   Set<int> get todayCompletedIds => _todayCompletedIds;
 
   List<int> get todaySelectedIds => _todaySelectedIds;
+
+  Set<String> get allCompletedDates => _allCompletedDates;
 
   void saveTodaySelectedIds(List<int> ids) {
     _todaySelectedIds = ids;

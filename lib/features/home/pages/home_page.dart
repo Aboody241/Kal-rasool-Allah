@@ -11,6 +11,7 @@ import 'package:kal_rasol_allah/features/home/widgets/share_button.dart';
 import 'package:kal_rasol_allah/features/home/controllers/home_provider.dart';
 import 'package:kal_rasol_allah/features/home/controllers/streak_provider.dart';
 import 'package:lottie/lottie.dart';
+import 'package:share_plus/share_plus.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -160,7 +161,14 @@ class HomePage extends ConsumerWidget {
                 ShareButton(
                   isDark: isDark,
                   ontap: () {
-                    // TODO: Share Action
+                    if (hasSunnah && currentSunnah != null) {
+                      final textToShare = 'سُنة اليوم: ${currentSunnah.title}\n\n'
+                          '${currentSunnah.description}\n\n'
+                          'المصدر: ${currentSunnah.source}\n\n'
+                          '🌟 تم المشاركة من تطبيق "قال رسول الله"';
+                      
+                      Share.share(textToShare);
+                    }
                   },
                 ),
                 

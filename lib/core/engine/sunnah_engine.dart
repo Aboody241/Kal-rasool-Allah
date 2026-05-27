@@ -112,6 +112,7 @@ class SunnahEngine {
       'dailyPoints': _pointsCalculator.dailyPoints,
       'completedTodayCount': _dailyTracker.todayCompletedIds.length,
       'hasCompletedToday': _dailyTracker.hasCompletedToday,
+      'allCompletedDates': _dailyTracker.allCompletedDates,
       'levelInfo': getLevel(),
     };
   }
