@@ -18,6 +18,7 @@ class HomeHadithCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = ref.watch(ThemeRiverPod);
     final homeState = ref.watch(homeProvider);
+    final homeNotifier = ref.read(homeProvider.notifier);
 
     return Container(
       width: double.infinity,
@@ -44,7 +45,6 @@ class HomeHadithCard extends ConsumerWidget {
           ),
           const Gap(25),
 
-          // عرض الحديث
           homeState.isLoading
               ? const Center(child: CircularProgressIndicator())
               : homeState.errorMessage != null
@@ -52,25 +52,91 @@ class HomeHadithCard extends ConsumerWidget {
                       homeState.errorMessage!,
                       style: const TextStyle(color: Colors.red),
                     )
-                  : homeState.ahadith.isEmpty
+                  : homeState.todaySunnahs.isEmpty
                       ? const SizedBox.shrink()
                       : AnimatedSwitcher(
                           duration: const Duration(milliseconds: 600),
                           child: Column(
                             key: ValueKey(homeState.currentIndex),
                             children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      // Container(
+                                      //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      //   decoration: BoxDecoration(
+                                      //     color: _getDifficultyColor(homeState.todaySunnahs[homeState.currentIndex].difficulty),
+                                      //     borderRadius: BorderRadius.circular(8),
+                                      //   ),
+                                      //   child: Text(
+                                      //     _getDifficultyText(homeState.todaySunnahs[homeState.currentIndex].difficulty),
+                                      //     style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+                                      //   ),
+                                      // ),
+                                      const Gap(10),
+                                      Text(
+                                        '+${homeState.todaySunnahs[homeState.currentIndex].points} نقاط',
+                                        style: const TextStyle(fontSize: 14, color: AppColors.gold, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      homeNotifier.isFavorite(homeState.todaySunnahs[homeState.currentIndex].id) 
+                                          ? Icons.favorite_rounded 
+                                          : Icons.favorite_border_rounded,
+                                      color: homeNotifier.isFavorite(homeState.todaySunnahs[homeState.currentIndex].id) 
+                                          ? Colors.red 
+                                          : AppColors.mediumGray,
+                                      size: 26,
+                                    ),
+                                    onPressed: () {
+                                      final id = homeState.todaySunnahs[homeState.currentIndex].id;
+                                      final isFav = homeNotifier.isFavorite(id);
+                                      homeNotifier.toggleFavorite(id);
+                                      
+                                      ScaffoldMessenger.of(context).clearSnackBars();
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            isFav ? 'تمت الإزالة من المفضلة' : 'تمت الإضافة للمفضلة',
+                                            style: const TextStyle(
+                                              fontFamily: 'Cairo',
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          backgroundColor: isFav
+                                              ? Colors.grey.shade800
+                                              : AppColors.primaryGreen,
+                                          behavior: SnackBarBehavior.floating,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          duration: const Duration(seconds: 2),
+                                        ),
+                                      );
+                                    },
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                  ),
+                                ],
+                              ),
+                              const Gap(15),
                               Text(
-                                'قال رسول الله ﷺ ',
+                                homeState.todaySunnahs[homeState.currentIndex].title,
                                 style: ArabicTextStyle(
-                                  fontSize: 20,
+                                  fontSize: 22,
                                   arabicFont: ArabicFont.amiri,
                                   color: isDark ? AppColors.mediumGray : Colors.black,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const Gap(14),
                               Text(
-                                homeState.ahadith[homeState.currentIndex]['text'],
+                                homeState.todaySunnahs[homeState.currentIndex].description,
                                 style: ArabicTextStyle(
                                   fontSize: 27,
                                   arabicFont: ArabicFont.amiri,
@@ -81,7 +147,7 @@ class HomeHadithCard extends ConsumerWidget {
                               ),
                               const Gap(30),
                               Text(
-                                homeState.ahadith[homeState.currentIndex]['source'],
+                                homeState.todaySunnahs[homeState.currentIndex].source,
                                 style: const TextStyle(
                                   fontFamily: ArabicFont.amiri,
                                   color: AppColors.gold,
@@ -101,5 +167,23 @@ class HomeHadithCard extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  String _getDifficultyText(String difficulty) {
+    switch (difficulty) {
+      case 'easy': return 'سهل';
+      case 'medium': return 'متوسط';
+      case 'hard': return 'صعب';
+      default: return 'سهل';
+    }
+  }
+
+  Color _getDifficultyColor(String difficulty) {
+    switch (difficulty) {
+      case 'easy': return AppColors.primaryGreen;
+      case 'medium': return Colors.orange;
+      case 'hard': return Colors.red;
+      default: return AppColors.primaryGreen;
+    }
   }
 }

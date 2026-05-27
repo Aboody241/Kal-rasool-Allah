@@ -1,19 +1,23 @@
-import 'dart:convert';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:hive/hive.dart';
+import 'package:kal_rasol_allah/core/engine/engine_provider.dart';
+import 'package:kal_rasol_allah/core/engine/sunnah_model.dart';
+import 'package:kal_rasol_allah/features/home/controllers/streak_provider.dart';
 
 class HomeState {
   final bool isLoading;
   final String? errorMessage;
-  final List<dynamic> ahadith;
+  final List<Sunnah> todaySunnahs;
+  final List<Sunnah> allSunnahs;
   final int currentIndex;
   final Set<int> favoriteHadithIds;
 
   HomeState({
     this.isLoading = false,
     this.errorMessage,
-    this.ahadith = const [],
+    this.todaySunnahs = const [],
+    this.allSunnahs = const [],
     this.currentIndex = 0,
     this.favoriteHadithIds = const {},
   });
@@ -21,14 +25,16 @@ class HomeState {
   HomeState copyWith({
     bool? isLoading,
     String? errorMessage,
-    List<dynamic>? ahadith,
+    List<Sunnah>? todaySunnahs,
+    List<Sunnah>? allSunnahs,
     int? currentIndex,
     Set<int>? favoriteHadithIds,
   }) {
     return HomeState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
-      ahadith: ahadith ?? this.ahadith,
+      todaySunnahs: todaySunnahs ?? this.todaySunnahs,
+      allSunnahs: allSunnahs ?? this.allSunnahs,
       currentIndex: currentIndex ?? this.currentIndex,
       favoriteHadithIds: favoriteHadithIds ?? this.favoriteHadithIds,
     );
@@ -36,83 +42,95 @@ class HomeState {
 }
 
 class HomeNotifier extends StateNotifier<HomeState> {
-  HomeNotifier() : super(HomeState()) {
-    _loadFavoritesAndAhadith();
+  final Ref ref;
+
+  HomeNotifier(this.ref) : super(HomeState()) {
+    _init();
   }
 
-  Future<void> _loadFavoritesAndAhadith() async {
+  Future<void> _init() async {
     try {
       final box = Hive.box('favorites_box');
-      final savedFavorites = box.get('favoriteHadithIds', defaultValue: <int>[]) as List;
+      final savedFavorites =
+          box.get('favoriteHadithIds', defaultValue: <int>[]) as List;
       final favoriteIds = Set<int>.from(savedFavorites.cast<int>());
       state = state.copyWith(favoriteHadithIds: favoriteIds);
     } catch (e) {
-      // Fallback in case of storage issue
+      // Fallback
     }
-    await _loadAhadith();
+
+    _loadSunnahsFromEngine();
   }
 
-  Future<void> _loadAhadith() async {
+  void _loadSunnahsFromEngine() {
     try {
-      state = state.copyWith(isLoading: true, errorMessage: null);
+      final engine = ref.read(engineProvider);
+      final sunnahs = engine.getTodaySunnahs();
+      final all = engine.getAllSunnahs();
       
-      final String data = await rootBundle.loadString('assets/content/ahadith.json');
-      final List<dynamic> loadedAhadith = jsonDecode(data);
-      
-      if (loadedAhadith.isNotEmpty) {
-        // حساب الحديث اليومي بناءً على رقم اليوم في السنة
-        // عشان يفضل نفس الحديث طول اليوم حتى لو التطبيق اتقفل واتفتح
-        final today = DateTime.now();
-        final dayOfYear = today.difference(DateTime(today.year, 1, 1)).inDays;
-        final index = dayOfYear % loadedAhadith.length;
-
-        state = state.copyWith(
-          isLoading: false,
-          ahadith: loadedAhadith,
-          currentIndex: index,
-        );
-      } else {
-         state = state.copyWith(
-          isLoading: false,
-          errorMessage: 'لا توجد أحاديث',
-        );
-      }
+      state = state.copyWith(
+        isLoading: false,
+        todaySunnahs: sunnahs,
+        allSunnahs: all,
+      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'حدث خطأ أثناء تحميل الأحاديث',
+        errorMessage: 'حدث خطأ أثناء تحميل السنن',
       );
     }
   }
 
-  // يمكن استخدامها لو حابين نغير الحديث يدوياً
-  void nextHadith() {
-    if (state.ahadith.isEmpty) return;
+  void completeCurrentSunnah() {
+    if (state.todaySunnahs.isEmpty) return;
     
-    final nextIndex = (state.currentIndex + 1) % state.ahadith.length;
+    final currentSunnah = state.todaySunnahs[state.currentIndex];
+    if (currentSunnah.isCompleted) return;
+
+    final engine = ref.read(engineProvider);
+    engine.completeSunnah(currentSunnah.id);
+    
+    // Refresh engine state in Riverpod (to update streak and stats)
+    ref.read(streakProvider.notifier).refreshStats();
+
+    // Reload sunnahs so the UI reflects the completion status
+    _loadSunnahsFromEngine();
+  }
+
+  void nextSunnah() {
+    if (state.todaySunnahs.isEmpty) return;
+
+    final nextIndex = (state.currentIndex + 1) % state.todaySunnahs.length;
     state = state.copyWith(currentIndex: nextIndex);
   }
 
-  // حفظ وإلغاء حفظ الحديث من المفضلة
-  void toggleFavorite(int hadithId) {
+  void previousSunnah() {
+    if (state.todaySunnahs.isEmpty) return;
+
+    final prevIndex = (state.currentIndex - 1) < 0 
+        ? state.todaySunnahs.length - 1 
+        : state.currentIndex - 1;
+    state = state.copyWith(currentIndex: prevIndex);
+  }
+
+  void toggleFavorite(int id) {
     final currentFavorites = Set<int>.from(state.favoriteHadithIds);
-    if (currentFavorites.contains(hadithId)) {
-      currentFavorites.remove(hadithId);
+    if (currentFavorites.contains(id)) {
+      currentFavorites.remove(id);
     } else {
-      currentFavorites.add(hadithId);
+      currentFavorites.add(id);
     }
     state = state.copyWith(favoriteHadithIds: currentFavorites);
-    
-    // Save to Hive
+
     final box = Hive.box('favorites_box');
     box.put('favoriteHadithIds', currentFavorites.toList());
   }
 
-  bool isFavorite(int hadithId) {
-    return state.favoriteHadithIds.contains(hadithId);
+  bool isFavorite(int id) {
+    return state.favoriteHadithIds.contains(id);
   }
 }
 
 final homeProvider = StateNotifierProvider<HomeNotifier, HomeState>((ref) {
-  return HomeNotifier();
+  return HomeNotifier(ref);
 });

@@ -1,0 +1,349 @@
+Project Name:
+قال رسول الله
+
+Project Type:
+Mobile application built using Flutter.
+
+Project Description:
+"قال رسول الله" is a modern Islamic mobile application designed to help users strengthen their relationship with Islam through daily worship tools, Quranic and prophetic content, reminders, and spiritual engagement features. The app focuses on simplicity, beautiful user experience, performance, and encouraging consistent Islamic habits.
+
+Target Users:
+- Muslims of all ages.
+- Students and adults.
+- Users who want a complete daily Islamic companion.
+
+Main Goals:
+1. Help users maintain Islamic habits daily.
+2. Make Islamic content easily accessible.
+3. Increase engagement using streaks and progress tracking.
+4. Provide a clean and modern user experience.
+
+Tech Stack:
+- Flutter
+- Dart
+- Clean Architecture
+- Cubit / Bloc for state management
+- Local storage:
+   - Hive
+   - SharedPreferences
+- JSON assets for static data
+- Geolocator and Compass packages for Qibla
+- Optional Firebase integration later
+
+Application Features:
+
+========================
+1) Home Screen
+========================
+
+The home page should contain:
+
+- User greeting
+- Islamic quote or Hadith of the day
+- Daily progress section
+- User streak count
+- Quick action cards
+
+Quick action examples:
+
+- Morning Azkar
+- Evening Azkar
+- Quran
+- Dua
+- Tasbeeh
+- Qibla
+- Allah Names
+- Prayer Times
+
+Design requirements:
+
+- Modern Islamic design
+- Rounded cards
+- Smooth animations
+- Responsive layouts
+- Dark and Light mode support
+
+========================
+2) Azkar Feature
+========================
+
+Contains:
+
+Morning Azkar
+Evening Azkar
+Sleeping Azkar
+Waking up Azkar
+Prayer Azkar
+Travel Azkar
+Food Azkar
+Mosque Azkar
+General Azkar
+
+Each Zikr object contains:
+
+id
+title
+description
+arabicText
+translation
+repeatCount
+benefits
+category
+
+Functions:
+
+- Counter for repetitions
+- Progress tracking
+- Mark completed
+- Favorite option
+- Search
+- Filtering
+
+========================
+3) Dua Feature
+========================
+
+Contains over 200+ duas.
+
+Each Dua model:
+
+id
+title
+arabicText
+translation
+source
+category
+
+Categories:
+
+- Rizq
+- Forgiveness
+- Sadness
+- Success
+- Health
+- Family
+- Study
+- Travel
+- Protection
+- General
+
+Functions:
+
+- Search
+- Favorites
+- Share
+- Copy
+
+========================
+4) Digital Tasbeeh Feature
+========================
+
+Features:
+
+- Large counter button
+- Vibration feedback
+- Sound feedback
+- Reset button
+- Save count
+- Multiple Tasbeeh phrases
+
+Examples:
+
+سبحان الله
+الحمد لله
+الله أكبر
+لا إله إلا الله
+استغفر الله
+
+Optional:
+
+- Animated counter
+- Statistics
+
+========================
+5) Qibla Feature
+========================
+
+Features:
+
+- Detect user location
+- Use device compass
+- Point accurately toward Kaaba direction
+- Animated compass UI
+- Permission handling
+- Error states
+
+Packages:
+
+- Geolocator
+- Flutter Compass
+
+========================
+6) Allah Names Feature
+========================
+
+Contains:
+
+99 Names of Allah
+
+Each object:
+
+id
+name
+meaning
+description
+benefits
+
+Functions:
+
+- Search
+- Favorite
+- Detail page
+
+========================
+7) Prayer Times Feature
+========================
+
+Features:
+
+Display:
+
+- Fajr
+- Sunrise
+- Dhuhr
+- Asr
+- Maghrib
+- Isha
+
+Functions:
+
+- User location detection
+- Notifications
+- Countdown until next prayer
+- Daily prayer status
+
+========================
+8) Streak System
+========================
+
+Current logic:
+
+- User gains only one point per day.
+- Streak increases when user opens the app during a new day.
+- User cannot gain multiple points in the same day.
+- Track:
+
+Current streak
+Longest streak
+Total active days
+
+Storage:
+
+SharedPreferences or Hive
+
+========================
+9) User Progress System
+========================
+
+Track:
+
+- Completed Azkar
+- Total Tasbeeh count
+- Daily activity
+- Streak
+- Achievements
+
+Optional badges:
+
+7 day streak
+30 day streak
+100 day streak
+First Dua completed
+Morning Azkar completed
+
+========================
+10) Settings Screen
+========================
+
+Options:
+
+- Dark Mode
+- Notifications
+- Font Size
+- Language
+- Sound Effects
+- Vibration
+- About App
+
+========================
+11) Future Features
+========================
+
+Potential future additions:
+
+- Quran with Tafsir
+- Audio recitations
+- Islamic stories
+- Nearby mosques
+- Islamic calendar
+- Ramadan section
+- Daily challenges
+- AI Islamic assistant
+- Widget support
+
+========================
+Architecture Requirements
+========================
+
+Folder Structure:
+
+features/
+    home/
+    azkar/
+    dua/
+    tasbeeh/
+    qibla/
+    prayer/
+    names_of_allah/
+    settings/
+
+Each feature:
+
+data/
+domain/
+presentation/
+
+Use:
+
+Models
+Repositories
+Cubit
+States
+Reusable widgets
+
+========================
+UI Requirements
+========================
+
+- Smooth animations
+- Minimal design
+- Clean typography
+- Islamic color palette
+- Responsive layouts
+- High performance
+- Reusable components
+- Accessibility support
+
+========================
+Performance Requirements
+========================
+
+- Fast loading
+- Offline support
+- Optimized images
+- Efficient state updates
+- Avoid unnecessary rebuilds
+
+End Goal:
+
+Create a complete Islamic daily companion application that users enjoy opening every day and that encourages consistency in worship and beneficial habits.

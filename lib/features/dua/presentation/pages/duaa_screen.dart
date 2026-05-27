@@ -1,5 +1,6 @@
 import 'package:arabic_font/arabic_font.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 
@@ -106,8 +107,8 @@ class DuaaScreen extends ConsumerWidget {
                                   : Icons.menu_book_rounded,
                               size: 64,
                               color: isDark
-                                  ? AppColors.lightGray.withOpacity(0.3)
-                                  : AppColors.card.withOpacity(0.2),
+                                  ? AppColors.lightGray.withValues(alpha: 0.3)
+                                  : AppColors.card.withValues(alpha: 0.2),
                             ),
                             const Gap(16),
                             Text(
@@ -119,8 +120,8 @@ class DuaaScreen extends ConsumerWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: isDark
-                                    ? AppColors.lightGray.withOpacity(0.6)
-                                    : AppColors.card.withOpacity(0.5),
+                                    ? AppColors.lightGray.withValues(alpha: 0.6)
+                                    : AppColors.card.withValues(alpha: 0.5),
                               ),
                             ),
                           ],
@@ -206,10 +207,34 @@ class DuaaScreen extends ConsumerWidget {
                                       ),
 
                                       IconButton(
-                                        onPressed: () {},
-
+                                        onPressed: () async {
+                                          await Clipboard.setData(
+                                            ClipboardData(text: dua.text),
+                                          );
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context).clearSnackBars();
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: const Text(
+                                                  'تم نسخ الدعاء بنجاح',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Cairo',
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                backgroundColor: AppColors.primaryGreen,
+                                                behavior: SnackBarBehavior.floating,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                ),
+                                                duration: const Duration(seconds: 2),
+                                              ),
+                                            );
+                                          }
+                                        },
                                         icon: Icon(
-                                          Icons.ios_share_rounded,
+                                          Icons.copy_rounded,
                                           color: AppColors.lightGray,
                                         ),
                                       ),

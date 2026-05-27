@@ -6,6 +6,8 @@ import 'package:kal_rasol_allah/core/const/consts.dart';
 import 'package:kal_rasol_allah/core/routes/approuter.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
+import 'package:kal_rasol_allah/features/home/controllers/streak_provider.dart';
+import 'package:lottie/lottie.dart';
 
 class HomeAppbar extends ConsumerWidget {
   const HomeAppbar({super.key});
@@ -13,6 +15,7 @@ class HomeAppbar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = ref.watch(ThemeRiverPod);
+    final streakState = ref.watch(streakProvider);
     return AppBar(
       backgroundColor: AppColors.black,
       title: Row(
@@ -46,7 +49,7 @@ class HomeAppbar extends ConsumerWidget {
             child: Row(
               children: [
                 Text(
-                  '0',
+                  '${streakState.currentStreak}',
                   style: AppTextStyles.small.copyWith(
                     color: isDark ? AppColors.white : AppColors.card,
                     fontWeight: FontWeight.w600,
@@ -54,10 +57,11 @@ class HomeAppbar extends ConsumerWidget {
                   ),
                 ),
                 const Gap(5),
-                const Icon(
-                  Icons.local_fire_department,
-                  size: 28,
-                  color: Colors.orange,
+                Lottie.asset(
+                  'assets/lottie/fire_streak.json',
+                  width: 35,
+                  height: 35,
+                  fit: BoxFit.contain,
                 ),
               ],
             ),

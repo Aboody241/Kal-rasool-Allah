@@ -44,7 +44,7 @@ class ToolsScreen extends ConsumerWidget {
     _ToolItem(
       title: 'الاذكار',
       icon: _IconWidget(
-        imagepath: 'assets/icons/azkar_icon.svg',
+        imagepath: 'assets/icons/praying.png',
         width: 50,
         height: 50,
       ),
@@ -139,7 +139,11 @@ class _IconWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(imagepath, width: width, height: height);
+    if (imagepath.toLowerCase().endsWith('.svg')) {
+      return SvgPicture.asset(imagepath, width: width, height: height);
+    } else {
+      return Image.asset(imagepath, width: width, height: height);
+    }
   }
 }
 

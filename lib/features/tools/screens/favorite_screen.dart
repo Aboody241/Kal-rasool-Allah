@@ -43,17 +43,17 @@ class FavoriteScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAhadithList(BuildContext context, WidgetRef ref, List<dynamic> items, bool isDark) {
+  Widget _buildSunnahList(BuildContext context, WidgetRef ref, List<dynamic> items, bool isDark) {
     if (items.isEmpty) {
-      return _buildEmptyState('لا توجد أحاديث في المفضلة حالياً', isDark);
+      return _buildEmptyState('لا توجد سنن في المفضلة حالياً', isDark);
     }
     return ListView.builder(
       itemCount: items.length,
       itemBuilder: (context, index) {
-        final hadith = items[index];
+        final sunnah = items[index];
         final delay = (index % 8) * 80;
         return TweenAnimationBuilder<double>(
-          key: ValueKey(hadith['id']),
+          key: ValueKey(sunnah.id),
           tween: Tween<double>(begin: 0.0, end: 1.0),
           duration: Duration(milliseconds: 350 + delay),
           curve: Curves.easeOutCubic,
@@ -79,7 +79,7 @@ class FavoriteScreen extends ConsumerWidget {
                     IconButton(
                       icon: const Icon(Icons.favorite_rounded, color: Colors.red, size: 22),
                       onPressed: () {
-                        ref.read(homeProvider.notifier).toggleFavorite(hadith['id']);
+                        ref.read(homeProvider.notifier).toggleFavorite(sunnah.id);
                         ScaffoldMessenger.of(context).clearSnackBars();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -95,9 +95,9 @@ class FavoriteScreen extends ConsumerWidget {
                         );
                       },
                     ),
-                    if (hadith['narrator'] != null && hadith['narrator'].toString().isNotEmpty)
+                    if (sunnah.category != null && sunnah.category.toString().isNotEmpty)
                       Text(
-                        'عن ${hadith['narrator']}',
+                        sunnah.category,
                         style: ArabicTextStyle(
                           arabicFont: ArabicFont.cairo,
                           fontSize: 12,
@@ -109,7 +109,7 @@ class FavoriteScreen extends ConsumerWidget {
                 ),
                 const Gap(10),
                 Text(
-                  hadith['text'],
+                  sunnah.title,
                   style: ArabicTextStyle(
                     arabicFont: ArabicFont.amiri,
                     fontSize: 22,
@@ -119,10 +119,23 @@ class FavoriteScreen extends ConsumerWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                if (hadith['source'] != null && hadith['source'].toString().isNotEmpty) ...[
+                if (sunnah.description != null && sunnah.description.toString().isNotEmpty) ...[
                   const Gap(15),
                   Text(
-                    hadith['source'],
+                    sunnah.description,
+                    style: ArabicTextStyle(
+                      arabicFont: ArabicFont.amiri,
+                      fontSize: 18,
+                      color: isDark ? AppColors.offWhite : Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+                if (sunnah.source != null && sunnah.source.toString().isNotEmpty) ...[
+                  const Gap(15),
+                  Text(
+                    sunnah.source,
                     style: const TextStyle(
                       fontFamily: ArabicFont.amiri,
                       color: AppColors.gold,
@@ -444,8 +457,8 @@ class FavoriteScreen extends ConsumerWidget {
     final namesNotifier = ref.read(namesOfAllahProvider.notifier);
 
     // Filter favorite lists
-    final favoriteAhadith = homeState.ahadith
-        .where((h) => homeState.favoriteHadithIds.contains(h['id']))
+    final favoriteSunnahs = homeState.allSunnahs
+        .where((s) => homeState.favoriteHadithIds.contains(s.id))
         .toList();
 
     final favoriteAzkar = azkarState.allAzkar
@@ -499,7 +512,7 @@ class FavoriteScreen extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                   ),
                   tabs: const [
-                    Tab(text: 'أحاديث'),
+                    Tab(text: 'سنن'),
                     Tab(text: 'أذكار'),
                     Tab(text: 'أدعية'),
                     Tab(text: 'أسماء الله'),
@@ -509,7 +522,7 @@ class FavoriteScreen extends ConsumerWidget {
                 Expanded(
                   child: TabBarView(
                     children: [
-                      _buildAhadithList(context, ref, favoriteAhadith, isDark),
+                      _buildSunnahList(context, ref, favoriteSunnahs, isDark),
                       _buildAzkarList(context, ref, favoriteAzkar, isDark),
                       _buildDuasList(context, ref, favoriteDuas, duaNotifier, isDark),
                       _buildNamesList(context, ref, favoriteNames, namesNotifier, isDark),
