@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:hive/hive.dart';
 import 'package:kal_rasol_allah/features/dua/data/dua_model.dart';
 import 'package:kal_rasol_allah/features/dua/data/dua_list.dart';
+
+const _favoritesBoxName = 'favorites_box';
+const _favoritesKey = 'favorite_dua_ids';
 
 // ==========================================
 // 1. State Class
@@ -73,17 +77,23 @@ class DuaNotifier extends StateNotifier<DuaState> {
       
       final List<DuaModel> duas = jsonList.map((json) => DuaModel.fromJson(json)).toList();
       
-      // Extract unique categories directly from JSON
-      final Set<String> uniqueCategories = {DuaCategories.all};
+      // Extract unique categories directly from JSON and add "المفضلة" at the beginning right after "الكل"
+      final Set<String> uniqueCategories = {DuaCategories.all, 'المفضلة'};
       for (var dua in duas) {
         uniqueCategories.add(dua.category);
       }
+
+      // ✅ Load saved favorites from Hive
+      final box = Hive.box(_favoritesBoxName);
+      final List<dynamic> savedIds = box.get(_favoritesKey, defaultValue: <dynamic>[]);
+      final Set<int> savedFavorites = savedIds.map((e) => e as int).toSet();
 
       state = state.copyWith(
         isLoading: false,
         allDuas: duas,
         categories: uniqueCategories.toList(),
-        displayedDuas: _applyFilter(duas, state.selectedCategory),
+        favoriteDuaIds: savedFavorites,
+        displayedDuas: _applyFilter(duas, state.selectedCategory, favorites: savedFavorites),
       );
     } catch (e, stacktrace) {
       // Handle loading failure and save the error message
@@ -104,8 +114,14 @@ class DuaNotifier extends StateNotifier<DuaState> {
       currentFavorites.add(duaId);
     }
     
-    state = state.copyWith(favoriteDuaIds: currentFavorites);
-    // TODO: In the future, save `currentFavorites` to SharedPreferences or Hive here.
+    state = state.copyWith(
+      favoriteDuaIds: currentFavorites,
+      displayedDuas: _applyFilter(state.allDuas, state.selectedCategory, favorites: currentFavorites),
+    );
+
+    // ✅ Persist favorites to Hive so they survive app restarts
+    final box = Hive.box(_favoritesBoxName);
+    box.put(_favoritesKey, currentFavorites.toList());
   }
 
   /// Filter Duas by Category
@@ -134,9 +150,13 @@ class DuaNotifier extends StateNotifier<DuaState> {
   }
 
   /// Private Helper: Filter list logic
-  List<DuaModel> _applyFilter(List<DuaModel> all, String category) {
+  List<DuaModel> _applyFilter(List<DuaModel> all, String category, {Set<int>? favorites}) {
     if (category == DuaCategories.all) {
       return all;
+    }
+    if (category == 'المفضلة') {
+      final favs = favorites ?? state.favoriteDuaIds;
+      return all.where((dua) => favs.contains(dua.id)).toList();
     }
     return all.where((dua) => dua.category == category).toList();
   }

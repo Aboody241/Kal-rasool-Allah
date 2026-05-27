@@ -273,6 +273,7 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
                 final remaining = _getRemainingCount(zikr);
                 final isCompleted = remaining == 0;
                 final defaultCount = _getDefaultRepeatCount(zikr);
+                final isFavorite = azkarState.favoriteZikrIds.contains(zikr.id);
 
                 final delay = (index % 8) * 80;
                 return TweenAnimationBuilder<double>(
@@ -363,15 +364,10 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
                                     constraints: const BoxConstraints(),
                                     padding: EdgeInsets.zero,
                                     icon: Icon(
-                                      azkarState.favoriteZikrIds.contains(
-                                            zikr.id,
-                                          )
+                                      isFavorite
                                           ? Icons.favorite_rounded
                                           : Icons.favorite_border_rounded,
-                                      color:
-                                          azkarState.favoriteZikrIds.contains(
-                                            zikr.id,
-                                          )
+                                      color: isFavorite
                                           ? Colors.red
                                           : AppColors.mediumGray,
                                       size: 22,
@@ -380,6 +376,40 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
                                       ref
                                           .read(azkarProvider.notifier)
                                           .toggleFavorite(zikr.id);
+
+
+
+                                          
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).clearSnackBars();
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                isFavorite
+                                                    ? 'تمت الإزالة من المفضلة'
+                                                    : 'تمت الإضافة للمفضلة',
+                                                style: const TextStyle(
+                                                  fontFamily: 'Cairo',
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              backgroundColor: isFavorite
+                                                  ? Colors.grey.shade800
+                                                  : AppColors.primaryGreen,
+                                              behavior: SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              duration: const Duration(
+                                                seconds: 2,
+                                              ),
+                                            ),
+                                          );
                                     },
                                   ),
                                   const Gap(8),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:hive/hive.dart';
 import 'package:kal_rasol_allah/features/dua/data/dua_model.dart';
 
 class AzkarState {
@@ -61,11 +62,16 @@ class AzkarNotifier extends StateNotifier<AzkarState> {
         'أذكار بعد الصلاة',
       ];
 
+      // ✅ Load saved favorites from Hive
+      final box = Hive.box('favorites_box');
+      final List<dynamic> savedIds = box.get('favorite_zikr_ids', defaultValue: <dynamic>[]);
+      final Set<int> savedFavorites = savedIds.map((e) => e as int).toSet();
+
       state = state.copyWith(
         isLoading: false,
         allAzkar: azkar,
         categories: azkarCategories,
-        favoriteZikrIds: {},
+        favoriteZikrIds: savedFavorites,
       );
     } catch (e) {
       state = state.copyWith(
@@ -84,6 +90,10 @@ class AzkarNotifier extends StateNotifier<AzkarState> {
       currentFavorites.add(zikrId);
     }
     state = state.copyWith(favoriteZikrIds: currentFavorites);
+
+    // ✅ Persist favorites to Hive so they survive app restarts
+    final box = Hive.box('favorites_box');
+    box.put('favorite_zikr_ids', currentFavorites.toList());
   }
 
   // Check if Zikr is favorite

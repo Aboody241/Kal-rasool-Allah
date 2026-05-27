@@ -40,15 +40,7 @@ class ToolsScreen extends ConsumerWidget {
       onTap: (context) =>
           Navigator.pushNamed(context, Approuter.namesOfAllahScreen),
     ),
-    _ToolItem(
-      title: 'القِبلة',
-      icon: _IconWidget(
-        imagepath: 'assets/icons/qibla_icon.svg',
-        width: 50,
-        height: 50,
-      ),
-      onTap: (context) => Navigator.pushNamed(context, Approuter.qiblaScreen),
-    ),
+
     _ToolItem(
       title: 'الاذكار',
       icon: _IconWidget(
@@ -57,6 +49,15 @@ class ToolsScreen extends ConsumerWidget {
         height: 50,
       ),
       onTap: (context) => Navigator.pushNamed(context, Approuter.azkarScreen),
+    ),
+    _ToolItem(
+      title: 'القِبلة',
+      icon: _IconWidget(
+        imagepath: 'assets/icons/qibla_icon.svg',
+        width: 50,
+        height: 50,
+      ),
+      onTap: (context) => Navigator.pushNamed(context, Approuter.qiblaScreen),
     ),
     _ToolItem(
       title: 'قائمة المفضلة',

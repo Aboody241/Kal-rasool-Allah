@@ -1,19 +1,21 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:hive/hive.dart';
 
 class HomeState {
   final bool isLoading;
   final String? errorMessage;
   final List<dynamic> ahadith;
   final int currentIndex;
+  final Set<int> favoriteHadithIds;
 
   HomeState({
     this.isLoading = false,
     this.errorMessage,
     this.ahadith = const [],
     this.currentIndex = 0,
+    this.favoriteHadithIds = const {},
   });
 
   HomeState copyWith({
@@ -21,19 +23,33 @@ class HomeState {
     String? errorMessage,
     List<dynamic>? ahadith,
     int? currentIndex,
+    Set<int>? favoriteHadithIds,
   }) {
     return HomeState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage ?? this.errorMessage,
       ahadith: ahadith ?? this.ahadith,
       currentIndex: currentIndex ?? this.currentIndex,
+      favoriteHadithIds: favoriteHadithIds ?? this.favoriteHadithIds,
     );
   }
 }
 
 class HomeNotifier extends StateNotifier<HomeState> {
   HomeNotifier() : super(HomeState()) {
-    _loadAhadith();
+    _loadFavoritesAndAhadith();
+  }
+
+  Future<void> _loadFavoritesAndAhadith() async {
+    try {
+      final box = Hive.box('favorites_box');
+      final savedFavorites = box.get('favoriteHadithIds', defaultValue: <int>[]) as List;
+      final favoriteIds = Set<int>.from(savedFavorites.cast<int>());
+      state = state.copyWith(favoriteHadithIds: favoriteIds);
+    } catch (e) {
+      // Fallback in case of storage issue
+    }
+    await _loadAhadith();
   }
 
   Future<void> _loadAhadith() async {
@@ -75,6 +91,25 @@ class HomeNotifier extends StateNotifier<HomeState> {
     
     final nextIndex = (state.currentIndex + 1) % state.ahadith.length;
     state = state.copyWith(currentIndex: nextIndex);
+  }
+
+  // حفظ وإلغاء حفظ الحديث من المفضلة
+  void toggleFavorite(int hadithId) {
+    final currentFavorites = Set<int>.from(state.favoriteHadithIds);
+    if (currentFavorites.contains(hadithId)) {
+      currentFavorites.remove(hadithId);
+    } else {
+      currentFavorites.add(hadithId);
+    }
+    state = state.copyWith(favoriteHadithIds: currentFavorites);
+    
+    // Save to Hive
+    final box = Hive.box('favorites_box');
+    box.put('favoriteHadithIds', currentFavorites.toList());
+  }
+
+  bool isFavorite(int hadithId) {
+    return state.favoriteHadithIds.contains(hadithId);
   }
 }
 

@@ -8,6 +8,7 @@ import 'package:kal_rasol_allah/core/widgets/custom_buttons.dart';
 import 'package:kal_rasol_allah/features/home/widgets/home_appbar.dart';
 import 'package:kal_rasol_allah/features/home/widgets/home_hadith_card.dart';
 import 'package:kal_rasol_allah/features/home/widgets/share_button.dart';
+import 'package:kal_rasol_allah/features/home/controllers/home_provider.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -15,6 +16,12 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = ref.watch(ThemeRiverPod);
+    final homeState = ref.watch(homeProvider);
+    final homeNotifier = ref.read(homeProvider.notifier);
+
+    final hasHadith = homeState.ahadith.isNotEmpty;
+    final currentHadith = hasHadith ? homeState.ahadith[homeState.currentIndex] : null;
+    final isFavorite = hasHadith && currentHadith != null && homeNotifier.isFavorite(currentHadith['id']);
 
     return Scaffold(
       appBar: const PreferredSize(
@@ -36,18 +43,45 @@ class HomePage extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('اضف للمفضلة', style: AppTextStyles.buttont),
+                        Text(
+                          isFavorite ? 'أزل من المفضلة' : 'اضف للمفضلة', 
+                          style: AppTextStyles.buttont,
+                        ),
                         const Gap(5),
-                        const Icon(
-                          Icons.favorite_border_rounded,
+                        Icon(
+                          isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                           size: 25,
-                          color: AppColors.lightGray,
+                          color: isFavorite ? Colors.red : AppColors.lightGray,
                         ),
                       ],
                     ),
                   ),
                   ontap: () {
-                    // TODO: Add to favorites functionality
+                    if (hasHadith && currentHadith != null) {
+                      homeNotifier.toggleFavorite(currentHadith['id']);
+                      
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            isFavorite ? 'تمت الإزالة من المفضلة' : 'تمت الإضافة للمفضلة',
+                            style: const TextStyle(
+                              fontFamily: 'Cairo',
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          backgroundColor: isFavorite
+                              ? Colors.grey.shade800
+                              : AppColors.primaryGreen,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    }
                   },
                 ),
                 

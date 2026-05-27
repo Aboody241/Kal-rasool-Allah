@@ -95,109 +95,163 @@ class DuaaScreen extends ConsumerWidget {
                           ),
                         ),
                       )
+                    : displayedDuas.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              duaState.selectedCategory == 'المفضلة'
+                                  ? Icons.favorite_border_rounded
+                                  : Icons.menu_book_rounded,
+                              size: 64,
+                              color: isDark
+                                  ? AppColors.lightGray.withOpacity(0.3)
+                                  : AppColors.card.withOpacity(0.2),
+                            ),
+                            const Gap(16),
+                            Text(
+                              duaState.selectedCategory == 'المفضلة'
+                                  ? 'لا توجد أدعية في المفضلة حالياً'
+                                  : 'لا توجد أدعية في هذا القسم',
+                              style: ArabicTextStyle(
+                                arabicFont: ArabicFont.cairo,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? AppColors.lightGray.withOpacity(0.6)
+                                    : AppColors.card.withOpacity(0.5),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
                     : ListView.builder(
                         itemCount: displayedDuas.length,
                         itemBuilder: (itemContext, index) {
                           final dua = displayedDuas[index];
                           final isFavorite = duaNotifier.isFavorite(dua.id);
 
-                          return ContainerBox(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.only(bottom: 30),
-                            borderRadius: BorderRadius.circular(15),
+                          final delay = (index % 8) * 80;
+                          return TweenAnimationBuilder<double>(
+                            key: ValueKey(dua.id), // Resets stagger on tab/filter switch
+                            tween: Tween<double>(begin: 0.0, end: 1.0),
+                            duration: Duration(milliseconds: 350 + delay),
+                            curve: Curves.easeOutCubic,
+                            builder: (context, value, child) {
+                              return Opacity(
+                                opacity: value,
+                                child: Transform.translate(
+                                  offset: Offset(
+                                    0.0,
+                                    (1.0 - value) * 24.0,
+                                  ), // Elegant 24px float up
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: ContainerBox(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.only(bottom: 30),
+                              borderRadius: BorderRadius.circular(15),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          duaNotifier.toggleFavorite(dua.id);
 
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        duaNotifier.toggleFavorite(dua.id);
-                                        
-                                        ScaffoldMessenger.of(context).clearSnackBars();
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              isFavorite
-                                                  ? 'تمت الإزالة من المفضلة'
-                                                  : 'تمت الإضافة للمفضلة',
-                                              style: const TextStyle(
-                                                fontFamily: 'Cairo',
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).clearSnackBars();
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                isFavorite
+                                                    ? 'تمت الإزالة من المفضلة'
+                                                    : 'تمت الإضافة للمفضلة',
+                                                style: const TextStyle(
+                                                  fontFamily: 'Cairo',
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              backgroundColor: isFavorite
+                                                  ? Colors.grey.shade800
+                                                  : AppColors.primaryGreen,
+                                              behavior: SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              duration: const Duration(
+                                                seconds: 2,
                                               ),
                                             ),
-                                            backgroundColor: isFavorite
-                                                ? Colors.grey.shade800
-                                                : AppColors.primaryGreen,
-                                            behavior: SnackBarBehavior.floating,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10),
-                                            ),
-                                            duration: const Duration(
-                                              seconds: 2,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      icon: Icon(
-                                        isFavorite
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        color: isFavorite
-                                            ? Colors.red
-                                            : AppColors.lightGray,
+                                          );
+                                        },
+                                        icon: Icon(
+                                          isFavorite
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color: isFavorite
+                                              ? Colors.red
+                                              : AppColors.lightGray,
+                                        ),
                                       ),
-                                    ),
 
-                                    IconButton(
-                                      onPressed: () {},
+                                      IconButton(
+                                        onPressed: () {},
 
-                                      icon: Icon(
-                                        Icons.ios_share_rounded,
-                                        color: AppColors.lightGray,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const Gap(10),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      Text(
-                                        dua.text,
-                                        textAlign: TextAlign.start,
-                                        style: ArabicTextStyle(
-                                          arabicFont: ArabicFont.dubai,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
+                                        icon: Icon(
+                                          Icons.ios_share_rounded,
                                           color: AppColors.lightGray,
                                         ),
                                       ),
-                                      if (dua.source != null) ...[
-                                        const Gap(15),
-                                        Text(
-                                          dua.source!,
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                            fontFamily: ArabicFont.amiri,
-                                            color: AppColors.gold,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
                                     ],
                                   ),
-                                ),
-                              ],
+                                  const Gap(10),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Text(
+                                          dua.text,
+                                          textAlign: TextAlign.start,
+                                          style: ArabicTextStyle(
+                                            arabicFont: ArabicFont.dubai,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.lightGray,
+                                          ),
+                                        ),
+                                        if (dua.source != null) ...[
+                                          const Gap(15),
+                                          Text(
+                                            dua.source!,
+                                            textAlign: TextAlign.start,
+                                            style: TextStyle(
+                                              fontFamily: ArabicFont.amiri,
+                                              color: AppColors.gold,
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },

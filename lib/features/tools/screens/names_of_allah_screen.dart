@@ -78,6 +78,9 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
   }
 
   Widget _buildTitleBar(bool isDark) {
+    final namesState = ref.watch(namesOfAllahProvider);
+    final showOnlyFavorites = namesState.showOnlyFavorites;
+
     return Row(
       key: const ValueKey('title'),
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -95,31 +98,53 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
             color: isDark ? AppColors.white : AppColors.card,
           ),
         ),
-        IconButton(
-          onPressed: _startSearch,
-          icon: Icon(
-            Icons.search,
-            size: 32,
-            color: isDark ? AppColors.white : AppColors.card,
-          ),
+        Row(
+          children: [
+            IconButton(
+              onPressed: () {
+                ref
+                    .read(namesOfAllahProvider.notifier)
+                    .toggleShowOnlyFavorites();
+              },
+              icon: Icon(
+                showOnlyFavorites
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
+                size: 28,
+                color: showOnlyFavorites
+                    ? Colors.red
+                    : (isDark ? AppColors.white : AppColors.card),
+              ),
+            ),
+            IconButton(
+              onPressed: _startSearch,
+              icon: Icon(
+                Icons.search,
+                size: 32,
+                color: isDark ? AppColors.white : AppColors.card,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(bool forFavorites) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.search_off_rounded,
+          Icon(
+            forFavorites
+                ? Icons.favorite_border_rounded
+                : Icons.search_off_rounded,
             size: 60,
             color: AppColors.mediumGray,
           ),
           const Gap(12),
           Text(
-            'لا توجد نتائج',
+            forFavorites ? 'لا توجد عناصر في المفضلة حالياً' : 'لا توجد نتائج',
             style: const TextStyle(
               fontFamily: ArabicFont.cairo,
               color: AppColors.mediumGray,
@@ -131,10 +156,18 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
     );
   }
 
-  Widget _buildList(List<AllahName> names) {
+  Widget _buildList(NamesOfAllahState namesState) {
+    final allNames = namesState.allNames;
+
+    // 1. Filter by favorites if showOnlyFavorites is true
+    final baseNames = namesState.showOnlyFavorites
+        ? allNames.where((n) => namesState.favoriteIds.contains(n.id)).toList()
+        : allNames;
+
+    // 2. Filter by search query
     final filtered = _query.isEmpty
-        ? names
-        : names
+        ? baseNames
+        : baseNames
               .where(
                 (n) =>
                     n.name.contains(_query) ||
@@ -143,19 +176,37 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
               )
               .toList();
 
-    if (filtered.isEmpty) return _buildEmptyState();
+    if (filtered.isEmpty) return _buildEmptyState(namesState.showOnlyFavorites);
 
     return ListView.builder(
       itemCount: filtered.length,
-      // ✅ cacheExtent يخلي Flutter يجهز الـ items اللي فوق وتحت الشاشة مسبقاً
       cacheExtent: 300,
       itemBuilder: (context, index) {
         final name = filtered[index];
-        return _AllahNameItem(
-          id: name.id,
-          name: name.name,
-          meaning: name.meaning,
-          description: name.description,
+        final delay = (index % 8) * 80;
+        return TweenAnimationBuilder<double>(
+          key: ValueKey(name.id),
+          tween: Tween<double>(begin: 0.0, end: 1.0),
+          duration: Duration(milliseconds: 350 + delay),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, child) {
+            return Opacity(
+              opacity: value,
+              child: Transform.translate(
+                offset: Offset(
+                  0.0,
+                  (1.0 - value) * 24.0, // Elegant 24px float up
+                ),
+                child: child,
+              ),
+            );
+          },
+          child: _AllahNameItem(
+            id: name.id,
+            name: name.name,
+            meaning: name.meaning,
+            description: name.description,
+          ),
         );
       },
     );
@@ -164,7 +215,7 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(ThemeRiverPod);
-    final namesAsync = ref.watch(namesOfAllahProvider);
+    final namesState = ref.watch(namesOfAllahProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -184,23 +235,25 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
 
               // ===== القائمة =====
               Expanded(
-                child: namesAsync.when(
-                  loading: () => Center(
-                    child: CircularProgressIndicator(
-                      color: isDark ? AppColors.gold : AppColors.primaryGreen,
-                    ),
-                  ),
-                  error: (e, _) => const Center(
-                    child: Text(
-                      'حدث خطأ في تحميل البيانات',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontFamily: ArabicFont.cairo,
-                      ),
-                    ),
-                  ),
-                  data: _buildList,
-                ),
+                child: namesState.isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          color: isDark
+                              ? AppColors.gold
+                              : AppColors.primaryGreen,
+                        ),
+                      )
+                    : namesState.errorMessage != null
+                    ? const Center(
+                        child: Text(
+                          'حدث خطأ في تحميل البيانات',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontFamily: ArabicFont.cairo,
+                          ),
+                        ),
+                      )
+                    : _buildList(namesState),
               ),
             ],
           ),
@@ -213,7 +266,7 @@ class _NamesOfAllahScreenState extends ConsumerState<NamesOfAllahScreen> {
 // ================================================================
 // ✅ _AllahNameItem — Item Widget
 // ================================================================
-class _AllahNameItem extends StatefulWidget {
+class _AllahNameItem extends ConsumerStatefulWidget {
   final int id;
   final String name;
   final String meaning;
@@ -227,10 +280,10 @@ class _AllahNameItem extends StatefulWidget {
   });
 
   @override
-  State<_AllahNameItem> createState() => _AllahNameItemState();
+  ConsumerState<_AllahNameItem> createState() => _AllahNameItemState();
 }
 
-class _AllahNameItemState extends State<_AllahNameItem>
+class _AllahNameItemState extends ConsumerState<_AllahNameItem>
     with SingleTickerProviderStateMixin {
   bool _isExpanded = false;
   late final AnimationController _controller;
@@ -267,6 +320,9 @@ class _AllahNameItemState extends State<_AllahNameItem>
 
   @override
   Widget build(BuildContext context) {
+    final namesState = ref.watch(namesOfAllahProvider);
+    final isFavorite = namesState.favoriteIds.contains(widget.id);
+
     return GestureDetector(
       onTap: _toggle,
       child: ContainerBox(
@@ -307,6 +363,45 @@ class _AllahNameItemState extends State<_AllahNameItem>
                     ],
                   ),
                 ),
+                IconButton(
+                  onPressed: () {
+                    ref
+                        .read(namesOfAllahProvider.notifier)
+                        .toggleFavorite(widget.id);
+
+                    ScaffoldMessenger.of(context).clearSnackBars();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isFavorite
+                              ? 'تمت الإزالة من المفضلة'
+                              : 'تمت الإضافة للمفضلة',
+                          style: const TextStyle(
+                            fontFamily: 'Cairo',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        backgroundColor: isFavorite
+                            ? Colors.grey.shade800
+                            : AppColors.primaryGreen,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    isFavorite
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
+                    color: isFavorite ? Colors.red : AppColors.mediumGray,
+                    size: 24,
+                  ),
+                ),
+                const Gap(8),
                 AnimatedRotation(
                   turns: _isExpanded ? 0.25 : 0,
                   duration: const Duration(milliseconds: 280),
@@ -320,7 +415,6 @@ class _AllahNameItemState extends State<_AllahNameItem>
             ),
 
             // ---- Expandable description ----
-            // ✅ SizeTransition + FadeTransition معاً = أنيميشن ناعم وحقيقي
             SizeTransition(
               sizeFactor: _expandAnimation,
               child: FadeTransition(
