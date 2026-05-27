@@ -37,7 +37,8 @@ class ToolsScreen extends ConsumerWidget {
         width: 50,
         height: 50,
       ),
-      onTap: (context) => Navigator.pushNamed(context, Approuter.namesOfAllahScreen),
+      onTap: (context) =>
+          Navigator.pushNamed(context, Approuter.namesOfAllahScreen),
     ),
     _ToolItem(
       title: 'القِبلة',
@@ -55,7 +56,8 @@ class ToolsScreen extends ConsumerWidget {
         width: 50,
         height: 50,
       ),
-      onTap: (context) => Navigator.pushNamed(context, Approuter.favoriteScreen),
+      onTap: (context) =>
+          Navigator.pushNamed(context, Approuter.favoriteScreen),
     ),
   ];
 
@@ -77,7 +79,7 @@ class ToolsScreen extends ConsumerWidget {
                 ),
                 Expanded(
                   child: GridView.builder(
-                    padding: const EdgeInsets.only(top: 40), // ✅ const
+                    padding: const EdgeInsets.only(top: 5), // ✅ const
                     itemCount: _toolItems.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
@@ -90,7 +92,9 @@ class ToolsScreen extends ConsumerWidget {
                       final item = _toolItems[index];
                       return InkWell(
                         // ✅ ربطنا الـ onTap
-                        onTap: item.onTap != null ? () => item.onTap!(context) : null,
+                        onTap: item.onTap != null
+                            ? () => item.onTap!(context)
+                            : null,
                         borderRadius: BorderRadius.circular(12),
                         child: ContainerBox(
                           padding: const EdgeInsets.symmetric(), // ✅ const
@@ -132,9 +136,10 @@ class _IconWidget extends StatelessWidget {
 class _ToolItem {
   final String title;
   final Widget icon;
-  final void Function(BuildContext)? onTap; // ✅ nullable — يستقبل context وقت الضغط
+  final void Function(BuildContext)?
+  onTap; // ✅ nullable — يستقبل context وقت الضغط
 
-  const  _ToolItem({
+  const _ToolItem({
     // ✅ const constructor
     required this.title,
     required this.icon,

@@ -17,20 +17,20 @@ class HomeAppbar extends ConsumerWidget {
       backgroundColor: AppColors.black,
       title: Row(
         children: [
-          GestureDetector(
-            onTap: () {
-              Navigator.pushReplacementNamed(context, Approuter.splashScreen);
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(Appconsts.mainLogo, height: 50, width: 50),
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () {
+          //     Navigator.pushReplacementNamed(context, Approuter.splashScreen);
+          //   },
+          //   child: ClipRRect(
+          //     borderRadius: BorderRadius.circular(500),
+          //     child: Image.asset(Appconsts.mainLogo, height: 50, width: 50),
+          //   ),
+          // ),
           const Gap(10),
           Text(
-            'قال رسول الله ﷺ',
+            'سلام الله عليكم',
             style: AppTextStyles.small.copyWith(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.w600,
               color: isDark ? AppColors.mediumGray : AppColors.card,
             ),
