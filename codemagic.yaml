@@ -6,10 +6,18 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
+      ios_signing:
+        distribution_type: ad_hoc
+        bundle_identifier: com.yourapp.bundleid
 
     scripts:
-      - flutter pub get
-      - flutter build ipa --release
+      - name: Get packages
+        script: flutter pub get
+
+      - name: Build IPA
+        script: |
+          flutter build ipa --release \
+            --export-method ad-hoc
 
     artifacts:
       - build/ios/ipa/*.ipa
