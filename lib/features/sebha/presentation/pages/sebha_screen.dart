@@ -1,5 +1,6 @@
 import 'package:arabic_font/arabic_font.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:kal_rasol_allah/features/sebha/controller/sebha_provider.dart';
@@ -339,6 +340,7 @@ class _SebhaScreenState extends ConsumerState<SebhaScreen>
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
+                    HapticFeedback.mediumImpact();
                     sebhaNotifier.increment();
                   },
                   child: SizedBox(

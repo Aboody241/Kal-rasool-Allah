@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
@@ -150,6 +151,7 @@ class HomePage extends ConsumerWidget {
                     ),
                     ontap: () {
                       if (hasSunnah) {
+                        HapticFeedback.heavyImpact();
                         homeNotifier.completeCurrentSunnah();
                         // Animation is triggered by streakState listener automatically
                       }

@@ -11,6 +11,7 @@ import 'package:kal_rasol_allah/core/engine/sunnah_engine.dart';
 import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
 import 'package:kal_rasol_allah/core/routes/approuter.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
+import 'package:kal_rasol_allah/core/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +19,7 @@ void main() async {
   await Hive.openBox('sebha_box');
   await Hive.openBox('favorites_box');
   await Hive.openBox('streak_box');
+  await Hive.openBox('notification_box');
   
   // Initialize Sunnah Engine
   final engineBoxName = 'engine_box';
@@ -30,6 +32,9 @@ void main() async {
   final hiveStorage = HiveStorage(engineBoxName);
   await hiveStorage.init();
   await sunnahEngine.init(hiveStorage, sunnahJsonList);
+
+  // Initialize Notification Service
+  await NotificationService().init();
 
   runApp(
     ProviderScope(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
+import 'package:kal_rasol_allah/core/services/notification_service.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/core/widgets/container_box.dart';
@@ -15,8 +16,18 @@ class SettingsPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
-  bool _notificationsEnabled = true;
+  bool _notificationsEnabled = false;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
+
+  final _notifService = NotificationService();
+
+  @override
+  void initState() {
+    super.initState();
+    // Load saved settings from Hive
+    _notificationsEnabled = _notifService.getSavedEnabled();
+    _reminderTime = _notifService.getSavedTime();
+  }
 
   // ✅ فتح الـ TimePicker
   Future<void> _pickTime() async {
@@ -27,8 +38,31 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         return Directionality(textDirection: TextDirection.rtl, child: child!);
       },
     );
-    if (picked != null) {
+    if (picked != null && picked != _reminderTime) {
       setState(() => _reminderTime = picked);
+      // Schedule with the new time
+      await _notifService.scheduleDailyNotification(_reminderTime);
+      if (mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'تم ضبط التذكير على $_formattedTime',
+              style: const TextStyle(
+                fontFamily: 'Cairo',
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            backgroundColor: AppColors.primaryGreen,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -38,6 +72,39 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final minute = _reminderTime.minute.toString().padLeft(2, '0');
     final period = _reminderTime.period == DayPeriod.am ? 'AM' : 'PM';
     return '$hour:$minute $period';
+  }
+
+  Future<void> _toggleNotifications(bool val) async {
+    setState(() => _notificationsEnabled = val);
+    if (val) {
+      // Request permission on Android 13+
+      await _notifService.requestPermission();
+      await _notifService.scheduleDailyNotification(_reminderTime);
+    } else {
+      await _notifService.cancelNotifications();
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            val ? 'تم تفعيل التذكير اليومي ✅' : 'تم إيقاف التذكير',
+            style: const TextStyle(
+              fontFamily: 'Cairo',
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: val ? AppColors.primaryGreen : Colors.grey.shade700,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
@@ -97,11 +164,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             // ✅ تفعيل التذكير اليومي
                             _SettingsTile(
                               title: 'تفعيل التذكير اليومي',
-                              subtitle: 'احصل على تذكر بالحديث اليومي',
+                              subtitle: 'احصل على تذكر بالسُنّة اليومية',
                               trailing: Switch(
                                 value: _notificationsEnabled,
-                                onChanged: (val) =>
-                                    setState(() => _notificationsEnabled = val),
+                                onChanged: _toggleNotifications,
                                 activeThumbColor: AppColors.darkGreen,
                               ),
                             ),
@@ -139,7 +205,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   onTap: _notificationsEnabled
                                       ? _pickTime
                                       : null,
-                                  child: Container(
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 250),
                                     width: double.infinity,
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
@@ -157,9 +224,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       children: [
                                         Icon(
                                           Icons.access_time_rounded,
-                                          color: _notificationsEnabled
-                                              ? AppColors.offWhite
-                                              : AppColors.offWhite,
+                                          color: AppColors.offWhite,
                                           size: 20,
                                         ),
                                         Text(
@@ -173,6 +238,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     ),
                                   ),
                                 ),
+
+                                if (_notificationsEnabled) ...[
+                                  const Gap(10),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.info_outline_rounded,
+                                        size: 14,
+                                        color: AppColors.primaryGreen,
+                                      ),
+                                      const Gap(4),
+                                      Text(
+                                        'سيصلك إشعار يومياً في هذا الوقت',
+                                        style: AppTextStyles.small.copyWith(
+                                          color: AppColors.primaryGreen,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ],
                             ),
                           ],

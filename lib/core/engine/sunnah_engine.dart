@@ -4,7 +4,6 @@ import 'sunnah_model.dart';
 import 'storage_interface.dart';
 import 'daily_tracker.dart';
 import 'streak_manager.dart';
-import 'points_calculator.dart';
 import 'recommendation_engine.dart';
 
 class SunnahEngine {
@@ -12,7 +11,6 @@ class SunnahEngine {
   
   late final DailyTracker _dailyTracker;
   late final StreakManager _streakManager;
-  late final PointsCalculator _pointsCalculator;
   late final RecommendationEngine _recommendationEngine;
 
   List<Sunnah> _allSunnahs = [];
@@ -23,12 +21,10 @@ class SunnahEngine {
     // Initialize sub-systems
     _dailyTracker = DailyTracker(_storage);
     _streakManager = StreakManager(_storage);
-    _pointsCalculator = PointsCalculator(_storage);
     _recommendationEngine = RecommendationEngine();
 
     await _dailyTracker.init();
     await _streakManager.init();
-    await _pointsCalculator.init();
 
     // Parse data
     _allSunnahs = sunnahJsonList
@@ -49,8 +45,7 @@ class SunnahEngine {
     bool isNewDay = _dailyTracker.checkAndResetIfNewDay();
     if (isNewDay) {
       _streakManager.checkMissedDays(_dailyTracker.lastActiveDate);
-      _pointsCalculator.resetDailyPoints();
-      
+
       // Reset model flags
       for (var sunnah in _allSunnahs) {
         sunnah.isCompleted = false;
@@ -62,9 +57,10 @@ class SunnahEngine {
   List<Sunnah> getAllSunnahs() => _allSunnahs;
 
   List<Sunnah> getTodaySunnahs() {
-    int currentLevel = _pointsCalculator.getLevelInfo()['level'];
+    // Level is always 1 — no points system
+    const int level = 1;
     final sunnahs = _recommendationEngine.getTodaySunnahs(
-      currentLevel,
+      level,
       _allSunnahs,
       _dailyTracker.recentHistory,
       _dailyTracker.todayCompletedIds,
@@ -93,9 +89,6 @@ class SunnahEngine {
     // Update Completion & Track if first
     bool isFirstCompletionToday = _dailyTracker.markSunnahCompleted(id);
 
-    // Update Points
-    _pointsCalculator.addPoints(sunnah.points);
-
     // Update Streak (Anti-Cheat: only affects streak once per day)
     if (isFirstCompletionToday) {
       _streakManager.incrementStreak();
@@ -108,12 +101,9 @@ class SunnahEngine {
   Map<String, dynamic> getStats() {
     return {
       ..._streakManager.getStreakStats(),
-      'totalPoints': _pointsCalculator.totalPoints,
-      'dailyPoints': _pointsCalculator.dailyPoints,
       'completedTodayCount': _dailyTracker.todayCompletedIds.length,
       'hasCompletedToday': _dailyTracker.hasCompletedToday,
       'allCompletedDates': _dailyTracker.allCompletedDates,
-      'levelInfo': getLevel(),
     };
   }
 
@@ -121,9 +111,5 @@ class SunnahEngine {
     var uncompleted = _allSunnahs.where((s) => !_dailyTracker.isCompletedToday(s.id)).toList();
     if (uncompleted.isEmpty) return null;
     return uncompleted[Random().nextInt(uncompleted.length)];
-  }
-
-  Map<String, dynamic> getLevel() {
-    return _pointsCalculator.getLevelInfo();
   }
 }

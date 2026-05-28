@@ -1,5 +1,6 @@
 import 'package:arabic_font/arabic_font.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
@@ -51,32 +52,8 @@ class HomeHadithCard extends ConsumerWidget {
                     key: ValueKey(homeState.currentIndex),
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Row(
-                            children: [
-                              // Container(
-                              //   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              //   decoration: BoxDecoration(
-                              //     color: _getDifficultyColor(homeState.todaySunnahs[homeState.currentIndex].difficulty),
-                              //     borderRadius: BorderRadius.circular(8),
-                              //   ),
-                              //   child: Text(
-                              //     _getDifficultyText(homeState.todaySunnahs[homeState.currentIndex].difficulty),
-                              //     style: const TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
-                              //   ),
-                              // ),
-                              const Gap(10),
-                              Text(
-                                '+${homeState.todaySunnahs[homeState.currentIndex].points} نقاط',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.gold,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
                           IconButton(
                             icon: Icon(
                               homeNotifier.isFavorite(
@@ -101,6 +78,7 @@ class HomeHadithCard extends ConsumerWidget {
                                   .todaySunnahs[homeState.currentIndex]
                                   .id;
                               final isFav = homeNotifier.isFavorite(id);
+                              HapticFeedback.lightImpact();
                               homeNotifier.toggleFavorite(id);
 
                               ScaffoldMessenger.of(context).clearSnackBars();

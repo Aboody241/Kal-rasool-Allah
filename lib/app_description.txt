@@ -22,7 +22,7 @@ Tech Stack:
 - Flutter
 - Dart
 - Clean Architecture
-- Cubit / Bloc for state management
+- Cubit / Bloc for state management / Riverpod
 - Local storage:
    - Hive
    - SharedPreferences
@@ -200,31 +200,7 @@ Functions:
 - Favorite
 - Detail page
 
-========================
-7) Prayer Times Feature
-========================
 
-Features:
-
-Display:
-
-- Fajr
-- Sunrise
-- Dhuhr
-- Asr
-- Maghrib
-- Isha
-
-Functions:
-
-- User location detection
-- Notifications
-- Countdown until next prayer
-- Daily prayer status
-
-========================
-8) Streak System
-========================
 
 Current logic:
 
@@ -251,15 +227,6 @@ Track:
 - Total Tasbeeh count
 - Daily activity
 - Streak
-- Achievements
-
-Optional badges:
-
-7 day streak
-30 day streak
-100 day streak
-First Dua completed
-Morning Azkar completed
 
 ========================
 10) Settings Screen
@@ -284,9 +251,6 @@ Potential future additions:
 - Quran with Tafsir
 - Audio recitations
 - Islamic stories
-- Nearby mosques
-- Islamic calendar
-- Ramadan section
 - Daily challenges
 - AI Islamic assistant
 - Widget support
@@ -303,7 +267,6 @@ features/
     dua/
     tasbeeh/
     qibla/
-    prayer/
     names_of_allah/
     settings/
 
