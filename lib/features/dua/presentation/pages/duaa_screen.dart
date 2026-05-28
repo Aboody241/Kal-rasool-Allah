@@ -216,7 +216,7 @@ class DuaaScreen extends ConsumerWidget {
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
                                                 content: const Text(
-                                                  'تم نسخ الدعاء بنجاح',
+                                                  'تم نسخ الدعاء ',
                                                   style: TextStyle(
                                                     fontFamily: 'Cairo',
                                                     fontWeight: FontWeight.bold,
