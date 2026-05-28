@@ -5,6 +5,7 @@ import 'package:kal_rasol_allah/features/history/history_page.dart';
 import 'package:kal_rasol_allah/features/home/pages/home_page.dart';
 import 'package:kal_rasol_allah/features/onboard/on_board_page.dart';
 import 'package:kal_rasol_allah/features/setting/setting_page.dart';
+import 'package:kal_rasol_allah/features/setting/daily_reminder_page.dart';
 import 'package:kal_rasol_allah/features/splash/splash_screen.dart';
 import 'package:kal_rasol_allah/features/tools/screens/azkar_screen.dart';
 import 'package:kal_rasol_allah/features/tools/screens/favorite_screen.dart';
@@ -31,6 +32,7 @@ class Approuter {
   static const String namesOfAllahScreen = '/namesOfAllahScreen';
   static const String qiblaScreen = '/qiblaScreen';
   static const String azkarScreen = '/azkarScreen';
+  static const String dailyReminderScreen = '/dailyReminderScreen';
   static Route<dynamic> generateroute(RouteSettings setting) {
     switch (setting.name) {
       case splashScreen:
@@ -49,6 +51,8 @@ class Approuter {
         return MaterialPageRoute(builder: (_) => const ToolsScreen());
       case favoriteScreen:
         return MaterialPageRoute(builder: (_) => const FavoriteScreen());
+      case dailyReminderScreen:
+        return _customPageRoute(const DailyReminderScreen());
       // New cases with smooth transition animation
       case sebhaScreen:
         return _customPageRoute(const SebhaScreen());

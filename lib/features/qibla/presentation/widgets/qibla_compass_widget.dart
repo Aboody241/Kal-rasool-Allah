@@ -24,15 +24,17 @@ class QiblaCompassWidget extends ConsumerWidget {
             alignment: Alignment.center,
             children: [
               // ---- Outer compass ring ----
-              _CompassRing(),
+              const _CompassRing(),
 
               // ---- Needle ----
               // ✅ استخدام AnimatedRotation أسهل وأكثر استقراراً من TweenAnimationBuilder
-              AnimatedRotation(
-                turns: finalAngle / 360,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutCubic,
-                child: _QiblaNeedle(),
+              RepaintBoundary(
+                child: AnimatedRotation(
+                  turns: finalAngle / 360,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  child: const _QiblaNeedle(),
+                ),
               ),
 
               // ---- Center dot ----
@@ -49,30 +51,6 @@ class QiblaCompassWidget extends ConsumerWidget {
         ),
 
         const Gap(24),
-
-        // ---- Distance label ----
-        // if (distanceToKaaba != null)
-        //   Column(
-        //     children: [
-        //       Text(
-        //         '${distanceToKaaba.toStringAsFixed(0)} كم',
-        //         style: const TextStyle(
-        //           fontFamily: ArabicFont.cairo,
-        //           fontSize: 28,
-        //           fontWeight: FontWeight.bold,
-        //           color: AppColors.white,
-        //         ),
-        //       ),
-        //       const Text(
-        //         'المسافة إلى الكعبة المشرفة',
-        //         style: TextStyle(
-        //           fontFamily: ArabicFont.cairo,
-        //           fontSize: 14,
-        //           color: AppColors.mediumGray,
-        //         ),
-        //       ),
-        //     ],
-        //   ),
       ],
     );
   }
@@ -80,6 +58,8 @@ class QiblaCompassWidget extends ConsumerWidget {
 
 // ---- Compass Ring Widget ----
 class _CompassRing extends StatelessWidget {
+  const _CompassRing({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -105,13 +85,15 @@ class _CompassRing extends StatelessWidget {
           ),
         ],
       ),
-      child: CustomPaint(painter: _CompassTicksPainter()),
+      child: const CustomPaint(painter: _CompassTicksPainter()),
     );
   }
 }
 
 // ---- Compass Ticks Painter ----
 class _CompassTicksPainter extends CustomPainter {
+  const _CompassTicksPainter();
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -148,6 +130,8 @@ class _CompassTicksPainter extends CustomPainter {
 
 // ---- Qibla Needle ----
 class _QiblaNeedle extends StatelessWidget {
+  const _QiblaNeedle({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(

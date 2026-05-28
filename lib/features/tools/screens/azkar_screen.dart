@@ -196,7 +196,6 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
   Widget _buildAzkarList(
     List<DuaModel> rawAzkar,
     bool isDark,
-    AzkarState azkarState,
   ) {
     // Filter by search query if any
     final filtered = _query.isEmpty
@@ -244,7 +243,7 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
             ),
           ),
         ),
-        Gap(10),
+        const Gap(10),
         Expanded(
           child: NotificationListener<ScrollNotification>(
             onNotification: (ScrollNotification notification) {
@@ -271,9 +270,7 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
               itemBuilder: (context, index) {
                 final zikr = filtered[index];
                 final remaining = _getRemainingCount(zikr);
-                final isCompleted = remaining == 0;
                 final defaultCount = _getDefaultRepeatCount(zikr);
-                final isFavorite = azkarState.favoriteZikrIds.contains(zikr.id);
 
                 final delay = (index % 8) * 80;
                 return TweenAnimationBuilder<double>(
@@ -295,190 +292,11 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
                       ),
                     );
                   },
-                  child: GestureDetector(
-                    onTap: () => _decrementCount(zikr),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 16,
-                        horizontal: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.card : AppColors.lightGray,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isCompleted
-                              ? AppColors.primaryGreen
-                              : (isDark
-                                    ? AppColors.secondary
-                                    : AppColors.mediumGray),
-                          width: 2.0,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Text and source
-                          Text(
-                            zikr.text,
-                            style: ArabicTextStyle(
-                              arabicFont: ArabicFont.amiri,
-                              fontSize: 19,
-                              fontWeight: FontWeight.normal,
-                              color: isDark ? AppColors.white : AppColors.card,
-                              height: 1.6,
-                            ),
-                            textAlign: TextAlign.right,
-                            textDirection: TextDirection.rtl,
-                          ),
-                          if (zikr.source != null &&
-                              zikr.source!.isNotEmpty) ...[
-                            const Gap(10),
-                            Text(
-                              zikr.source!,
-                              style: TextStyle(
-                                fontFamily: ArabicFont.cairo,
-                                fontSize: 12,
-                                color: isDark
-                                    ? AppColors.gold
-                                    : AppColors.darkGreen,
-                                fontStyle: FontStyle.italic,
-                              ),
-                              textAlign: TextAlign.right,
-                              textDirection: TextDirection.rtl,
-                            ),
-                          ],
-                          const Gap(16),
-                          const Divider(color: AppColors.secondary, height: 1),
-                          const Gap(12),
-
-                          // Repetition Control bar
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // Left side: Favorite heart and Status Indicator
-                              Row(
-                                children: [
-                                  IconButton(
-                                    constraints: const BoxConstraints(),
-                                    padding: EdgeInsets.zero,
-                                    icon: Icon(
-                                      isFavorite
-                                          ? Icons.favorite_rounded
-                                          : Icons.favorite_border_rounded,
-                                      color: isFavorite
-                                          ? Colors.red
-                                          : AppColors.mediumGray,
-                                      size: 22,
-                                    ),
-                                    onPressed: () {
-                                      ref
-                                          .read(azkarProvider.notifier)
-                                          .toggleFavorite(zikr.id);
-
-
-
-                                          
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).clearSnackBars();
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                isFavorite
-                                                    ? 'تمت الإزالة من المفضلة'
-                                                    : 'تمت الإضافة للمفضلة',
-                                                style: const TextStyle(
-                                                  fontFamily: 'Cairo',
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              backgroundColor: isFavorite
-                                                  ? Colors.grey.shade800
-                                                  : AppColors.primaryGreen,
-                                              behavior: SnackBarBehavior.floating,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              duration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                            ),
-                                          );
-                                    },
-                                  ),
-                                  const Gap(8),
-                                  AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 250),
-                                    child: isCompleted
-                                        ? const Row(
-                                            key: ValueKey('completed'),
-                                            children: [
-                                              Icon(
-                                                Icons.check_circle_rounded,
-                                                color: AppColors.primaryGreen,
-                                                size: 20,
-                                              ),
-                                              Gap(6),
-                                              Text(
-                                                'تم الأكتمال',
-                                                style: TextStyle(
-                                                  fontFamily: ArabicFont.cairo,
-                                                  color: AppColors.primaryGreen,
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        : Text(
-                                            'المتبقي: $remaining من $defaultCount',
-                                            style: const TextStyle(
-                                              fontFamily: ArabicFont.cairo,
-                                              color: AppColors.mediumGray,
-                                              fontSize: 13,
-                                            ),
-                                          ),
-                                  ),
-                                ],
-                              ),
-
-                              // Round interactive button
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: isCompleted
-                                      ? AppColors.primaryGreen.withOpacity(0.1)
-                                      : AppColors.primaryGreen,
-                                  shape: BoxShape.circle,
-                                ),
-                                alignment: Alignment.center,
-                                child: isCompleted
-                                    ? const Icon(
-                                        Icons.check_rounded,
-                                        color: AppColors.primaryGreen,
-                                        size: 22,
-                                      )
-                                    : Text(
-                                        '$remaining',
-                                        style: const TextStyle(
-                                          color: AppColors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                  child: _ZikrCard(
+                    zikr: zikr,
+                    remaining: remaining,
+                    defaultCount: defaultCount,
+                    onDecrement: () => _decrementCount(zikr),
                   ),
                 );
               },
@@ -492,9 +310,15 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(ThemeRiverPod);
-    final azkarState = ref.watch(azkarProvider);
+    
+    // Watch precise slices of azkarProvider state to isolate rebuild boundaries
+    final isLoading = ref.watch(azkarProvider.select((s) => s.isLoading));
+    final errorMessage = ref.watch(azkarProvider.select((s) => s.errorMessage));
+    final categories = ref.watch(azkarProvider.select((s) => s.categories));
+    final allAzkar = ref.watch(azkarProvider.select((s) => s.allAzkar));
+    final favoriteZikrIds = ref.watch(azkarProvider.select((s) => s.favoriteZikrIds));
 
-    if (azkarState.isLoading) {
+    if (isLoading) {
       return Scaffold(
         body: Center(
           child: CircularProgressIndicator(
@@ -504,7 +328,7 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
       );
     }
 
-    if (azkarState.errorMessage != null) {
+    if (errorMessage != null) {
       return Scaffold(
         body: Center(
           child: Column(
@@ -513,7 +337,7 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
               const Icon(Icons.error_outline, size: 60, color: Colors.red),
               const Gap(16),
               Text(
-                'حدث خطأ في تحميل الأذكار: ${azkarState.errorMessage}',
+                'حدث خطأ في تحميل الأذكار: $errorMessage',
                 style: const TextStyle(fontFamily: ArabicFont.cairo),
                 textAlign: TextAlign.center,
               ),
@@ -529,22 +353,22 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
     }
 
     // Append 'المفضلة' to categories for UI TabBar
-    final categoriesWithFavorites = [...azkarState.categories, 'المفضلة'];
+    final categoriesWithFavorites = [...categories, 'المفضلة'];
 
     // Filter dynamic lists for each category
     final Map<String, List<DuaModel>> categorizedAzkar = {};
-    for (var cat in azkarState.categories) {
-      categorizedAzkar[cat] = azkarState.allAzkar
+    for (var cat in categories) {
+      categorizedAzkar[cat] = allAzkar
           .where((z) => z.category == cat)
           .toList();
     }
     // Set favorite items list for 'المفضلة' tab
-    categorizedAzkar['المفضلة'] = azkarState.allAzkar
-        .where((z) => azkarState.favoriteZikrIds.contains(z.id))
+    categorizedAzkar['المفضلة'] = allAzkar
+        .where((z) => favoriteZikrIds.contains(z.id))
         .toList();
 
-    final allCategoriesAzkar = azkarState.allAzkar
-        .where((z) => azkarState.categories.contains(z.category))
+    final allCategoriesAzkar = allAzkar
+        .where((z) => categories.contains(z.category))
         .toList();
 
     return DefaultTabController(
@@ -595,14 +419,13 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
                 // ===== TabView =====
                 Expanded(
                   child: _isSearching
-                      ? _buildAzkarList(allCategoriesAzkar, isDark, azkarState)
+                      ? _buildAzkarList(allCategoriesAzkar, isDark)
                       : TabBarView(
                           children: categoriesWithFavorites
                               .map(
                                 (cat) => _buildAzkarList(
                                   categorizedAzkar[cat] ?? [],
                                   isDark,
-                                  azkarState,
                                 ),
                               )
                               .toList(),
@@ -611,6 +434,201 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// ✅ _ZikrCard — Standalone widget to isolate zikr item rebuilds
+// ============================================================
+class _ZikrCard extends ConsumerWidget {
+  final DuaModel zikr;
+  final int remaining;
+  final int defaultCount;
+  final VoidCallback onDecrement;
+
+  const _ZikrCard({
+    required this.zikr,
+    required this.remaining,
+    required this.defaultCount,
+    required this.onDecrement,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(ThemeRiverPod);
+    
+    // Watch only the favorite status of this specific zikr to prevent rebuilding other cards!
+    final isFavorite = ref.watch(
+      azkarProvider.select((s) => s.favoriteZikrIds.contains(zikr.id)),
+    );
+    final isCompleted = remaining == 0;
+
+    return GestureDetector(
+      onTap: onDecrement,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 16,
+        ),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.card : AppColors.lightGray,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isCompleted
+                ? AppColors.primaryGreen
+                : (isDark
+                      ? AppColors.secondary
+                      : AppColors.mediumGray),
+            width: 2.0,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Text and source
+            Text(
+              zikr.text,
+              style: ArabicTextStyle(
+                arabicFont: ArabicFont.amiri,
+                fontSize: 19,
+                fontWeight: FontWeight.normal,
+                color: isDark ? AppColors.white : AppColors.card,
+                height: 1.6,
+              ),
+              textAlign: TextAlign.right,
+              textDirection: TextDirection.rtl,
+            ),
+            if (zikr.source != null && zikr.source!.isNotEmpty) ...[
+              const Gap(10),
+              Text(
+                zikr.source!,
+                style: TextStyle(
+                  fontFamily: ArabicFont.cairo,
+                  fontSize: 12,
+                  color: isDark ? AppColors.gold : AppColors.darkGreen,
+                  fontStyle: FontStyle.italic,
+                ),
+                textAlign: TextAlign.right,
+                textDirection: TextDirection.rtl,
+              ),
+            ],
+            const Gap(16),
+            const Divider(color: AppColors.secondary, height: 1),
+            const Gap(12),
+
+            // Repetition Control bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      constraints: const BoxConstraints(),
+                      padding: EdgeInsets.zero,
+                      icon: Icon(
+                        isFavorite
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_border_rounded,
+                        color: isFavorite ? Colors.red : AppColors.mediumGray,
+                        size: 22,
+                      ),
+                      onPressed: () {
+                        ref.read(azkarProvider.notifier).toggleFavorite(zikr.id);
+
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              isFavorite ? 'تمت الإزالة من المفضلة' : 'تمت الإضافة للمفضلة',
+                              style: const TextStyle(
+                                fontFamily: 'Cairo',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            backgroundColor: isFavorite
+                                ? Colors.grey.shade800
+                                : AppColors.primaryGreen,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+                    const Gap(8),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: isCompleted
+                          ? const Row(
+                              key: ValueKey('completed'),
+                              children: [
+                                Icon(
+                                  Icons.check_circle_rounded,
+                                  color: AppColors.primaryGreen,
+                                  size: 20,
+                                ),
+                                Gap(6),
+                                Text(
+                                  'تم الأكتمال',
+                                  style: TextStyle(
+                                    fontFamily: ArabicFont.cairo,
+                                    color: AppColors.primaryGreen,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              'المتبقي: $remaining من $defaultCount',
+                              style: const TextStyle(
+                                fontFamily: ArabicFont.cairo,
+                                color: AppColors.mediumGray,
+                                fontSize: 13,
+                              ),
+                            ),
+                    ),
+                  ],
+                ),
+
+                // Round interactive button
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: isCompleted
+                        ? AppColors.primaryGreen.withOpacity(0.1)
+                        : AppColors.primaryGreen,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: isCompleted
+                      ? const Icon(
+                          Icons.check_rounded,
+                          color: AppColors.primaryGreen,
+                          size: 22,
+                        )
+                      : Text(
+                          '$remaining',
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

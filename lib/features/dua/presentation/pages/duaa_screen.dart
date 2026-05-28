@@ -9,6 +9,7 @@ import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/core/widgets/container_box.dart';
 import 'package:kal_rasol_allah/features/dua/controller/dua_provider.dart';
+import 'package:kal_rasol_allah/features/dua/data/dua_model.dart';
 
 class DuaaScreen extends ConsumerWidget {
   const DuaaScreen({super.key});
@@ -17,10 +18,14 @@ class DuaaScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = ref.watch(ThemeRiverPod);
 
-    // Watch the Dua state
-    final duaState = ref.watch(duaProvider);
+    // Watch targeted slices of state to isolate rebuild boundaries
+    final isLoading = ref.watch(duaProvider.select((s) => s.isLoading));
+    final errorMessage = ref.watch(duaProvider.select((s) => s.errorMessage));
+    final selectedCategory = ref.watch(duaProvider.select((s) => s.selectedCategory));
+    final categories = ref.watch(duaProvider.select((s) => s.categories));
+    final displayedDuas = ref.watch(duaProvider.select((s) => s.displayedDuas));
+
     final duaNotifier = ref.read(duaProvider.notifier);
-    final displayedDuas = duaState.displayedDuas;
 
     return Scaffold(
       body: SafeArea(
@@ -46,7 +51,7 @@ class DuaaScreen extends ConsumerWidget {
                     ),
                   ),
                   DropdownButton<String>(
-                    value: duaState.selectedCategory,
+                    value: selectedCategory,
                     dropdownColor: isDark ? AppColors.card : AppColors.offWhite,
                     iconEnabledColor: isDark ? AppColors.white : AppColors.card,
                     style: ArabicTextStyle(
@@ -56,7 +61,7 @@ class DuaaScreen extends ConsumerWidget {
                       fontWeight: FontWeight.w600,
                     ),
                     underline: const SizedBox(),
-                    items: duaState.categories.map((category) {
+                    items: categories.map((category) {
                       return DropdownMenuItem(
                         value: category,
                         child: Text(category),
@@ -72,9 +77,8 @@ class DuaaScreen extends ConsumerWidget {
               ),
               const Gap(20),
 
-              // Optional: You can add Category tabs/chips here later using duaState.selectedCategory
               Expanded(
-                child: duaState.isLoading
+                child: isLoading
                     ? Center(
                         child: CircularProgressIndicator(
                           color: isDark
@@ -82,12 +86,12 @@ class DuaaScreen extends ConsumerWidget {
                               : AppColors.primaryGreen,
                         ),
                       )
-                    : duaState.errorMessage != null
+                    : errorMessage != null
                     ? Center(
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
-                            'حدث خطأ: ${duaState.errorMessage}',
+                            'حدث خطأ: $errorMessage',
                             style: const TextStyle(
                               color: Colors.red,
                               fontSize: 16,
@@ -102,7 +106,7 @@ class DuaaScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              duaState.selectedCategory == 'المفضلة'
+                              selectedCategory == 'المفضلة'
                                   ? Icons.favorite_border_rounded
                                   : Icons.menu_book_rounded,
                               size: 64,
@@ -112,7 +116,7 @@ class DuaaScreen extends ConsumerWidget {
                             ),
                             const Gap(16),
                             Text(
-                              duaState.selectedCategory == 'المفضلة'
+                              selectedCategory == 'المفضلة'
                                   ? 'لا توجد أدعية في المفضلة حالياً'
                                   : 'لا توجد أدعية في هذا القسم',
                               style: ArabicTextStyle(
@@ -129,13 +133,12 @@ class DuaaScreen extends ConsumerWidget {
                       )
                     : ListView.builder(
                         itemCount: displayedDuas.length,
+                        cacheExtent: 300, // cache offscreen items for smoother scrolling
                         itemBuilder: (itemContext, index) {
                           final dua = displayedDuas[index];
-                          final isFavorite = duaNotifier.isFavorite(dua.id);
-
                           final delay = (index % 8) * 80;
                           return TweenAnimationBuilder<double>(
-                            key: ValueKey(dua.id), // Resets stagger on tab/filter switch
+                            key: ValueKey(dua.id),
                             tween: Tween<double>(begin: 0.0, end: 1.0),
                             duration: Duration(milliseconds: 350 + delay),
                             curve: Curves.easeOutCubic,
@@ -146,138 +149,12 @@ class DuaaScreen extends ConsumerWidget {
                                   offset: Offset(
                                     0.0,
                                     (1.0 - value) * 24.0,
-                                  ), // Elegant 24px float up
+                                  ),
                                   child: child,
                                 ),
                               );
                             },
-                            child: ContainerBox(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.only(bottom: 30),
-                              borderRadius: BorderRadius.circular(15),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          duaNotifier.toggleFavorite(dua.id);
-
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).clearSnackBars();
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                isFavorite
-                                                    ? 'تمت الإزالة من المفضلة'
-                                                    : 'تمت الإضافة للمفضلة',
-                                                style: const TextStyle(
-                                                  fontFamily: 'Cairo',
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              backgroundColor: isFavorite
-                                                  ? Colors.grey.shade800
-                                                  : AppColors.primaryGreen,
-                                              behavior: SnackBarBehavior.floating,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              duration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        icon: Icon(
-                                          isFavorite
-                                              ? Icons.favorite
-                                              : Icons.favorite_border,
-                                          color: isFavorite
-                                              ? Colors.red
-                                              : AppColors.lightGray,
-                                        ),
-                                      ),
-
-                                      IconButton(
-                                        onPressed: () async {
-                                          await Clipboard.setData(
-                                            ClipboardData(text: dua.text),
-                                          );
-                                          if (context.mounted) {
-                                            ScaffoldMessenger.of(context).clearSnackBars();
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: const Text(
-                                                  'تم نسخ الدعاء ',
-                                                  style: TextStyle(
-                                                    fontFamily: 'Cairo',
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                backgroundColor: AppColors.primaryGreen,
-                                                behavior: SnackBarBehavior.floating,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                ),
-                                                duration: const Duration(seconds: 2),
-                                              ),
-                                            );
-                                          }
-                                        },
-                                        icon: Icon(
-                                          Icons.copy_rounded,
-                                          color: AppColors.lightGray,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const Gap(10),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        Text(
-                                          dua.text,
-                                          textAlign: TextAlign.start,
-                                          style: ArabicTextStyle(
-                                            arabicFont: ArabicFont.dubai,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.lightGray,
-                                          ),
-                                        ),
-                                        if (dua.source != null) ...[
-                                          const Gap(15),
-                                          Text(
-                                            dua.source!,
-                                            textAlign: TextAlign.start,
-                                            style: TextStyle(
-                                              fontFamily: ArabicFont.amiri,
-                                              color: AppColors.gold,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            child: _DuaCard(dua: dua),
                           );
                         },
                       ),
@@ -285,6 +162,132 @@ class DuaaScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// Targeted isolated _DuaCard to prevent entire list rebuilds
+// ============================================================
+class _DuaCard extends ConsumerWidget {
+  final DuaModel dua;
+  const _DuaCard({required this.dua});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(ThemeRiverPod);
+    
+    // Select ONLY favorite status for this specific dua.id to isolate rebuilds!
+    final isFavorite = ref.watch(
+      duaProvider.select((s) => s.favoriteDuaIds.contains(dua.id)),
+    );
+    final duaNotifier = ref.read(duaProvider.notifier);
+
+    return ContainerBox(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 30),
+      borderRadius: BorderRadius.circular(15),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                onPressed: () {
+                  duaNotifier.toggleFavorite(dua.id);
+
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isFavorite ? 'تمت الإزالة من المفضلة' : 'تمت الإضافة للمفضلة',
+                        style: const TextStyle(
+                          fontFamily: 'Cairo',
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      backgroundColor: isFavorite ? Colors.grey.shade800 : AppColors.primaryGreen,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite ? Colors.red : (isDark ? AppColors.lightGray : AppColors.darkGray),
+                ),
+              ),
+
+              IconButton(
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: dua.text));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).clearSnackBars();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text(
+                          'تم نسخ الدعاء',
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        backgroundColor: AppColors.primaryGreen,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
+                icon: Icon(
+                  Icons.copy_rounded,
+                  color: isDark ? AppColors.lightGray : AppColors.darkGray,
+                ),
+              ),
+            ],
+          ),
+          const Gap(10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  dua.text,
+                  textAlign: TextAlign.start,
+                  style: ArabicTextStyle(
+                    arabicFont: ArabicFont.dubai,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? AppColors.lightGray : AppColors.card,
+                  ),
+                ),
+                if (dua.source != null) ...[
+                  const Gap(15),
+                  Text(
+                    dua.source!,
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                      fontFamily: ArabicFont.amiri,
+                      color: AppColors.gold,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -19,7 +21,7 @@ class OnboardScreen extends ConsumerStatefulWidget {
 
 class _OnboardScreenState extends ConsumerState<OnboardScreen> {
   double currentIndex = 0;
-  late PageController pageController; // ✅ إصلاح الـ typo
+  late PageController pageController;
 
   @override
   void initState() {
@@ -38,20 +40,20 @@ class _OnboardScreenState extends ConsumerState<OnboardScreen> {
       icon: Icons.menu_book_rounded,
       title: 'حَديث يومي',
       subtitle:
-          'إستقبل كل يوم بحديث نبوي شريف لتكون علي خطى رسولنا الكريم مُحمد ﷺ',
+          'استقبل كل يوم بحديث نبوي شريف لتكون على خطى رسولنا الكريم مُحمد ﷺ',
       iconColor: AppColors.primaryGreen,
     ),
     OnboardModel(
       icon: Icons.local_fire_department_outlined,
-      title: 'حافظ علي التسلسل',
-      subtitle: 'تابع مدى التزامك اليومي واحصل على سلسة من الايام المتتالية',
+      title: 'حافظ على التسلسل',
+      subtitle: 'تابع مدى التزامك اليومي واحصل على سلسلة من الأيام المتتالية',
       iconColor: Colors.orange,
     ),
     OnboardModel(
       icon: Icons.calendar_month_outlined,
       title: 'سجِل إنجازاتك',
-      subtitle: 'تابع تاريخك وشاهد تقدمك يوماً بعد يوم',
-      iconColor: AppColors.mutedGray,
+      subtitle: 'تابع تاريخك وشاهد تقدمك وسننك المفضلة يوماً بعد يوم',
+      iconColor: AppColors.gold,
     ),
   ];
 
@@ -61,117 +63,311 @@ class _OnboardScreenState extends ConsumerState<OnboardScreen> {
     final isDark = ref.watch(ThemeRiverPod);
 
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Column(
-            children: [
-              const Gap(10),
-
-              // ✅ شيلنا الـ Container الفاضي
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.asset(Appconsts.mainLogo, width: 100, height: 100),
+      body: Stack(
+        children: [
+          // ---- Background Gradient ----
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: isDark
+                      ? [const Color(0xFF0C1712), const Color(0xFF050806)]
+                      : [const Color(0xFFF3F7F5), const Color(0xFFE5EDE9)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
               ),
+            ),
+          ),
 
-              // ✅ شيلنا Gap(0)
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: Expanded(
-                  child: PageView.builder(
-                    controller: pageController, // ✅
-                    itemCount: onboardData.length,
-                    onPageChanged: (index) {
-                      setState(() => currentIndex = index.toDouble());
-                    },
-                    itemBuilder: (context, index) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+          // ---- Floating Blur Orbs ----
+          Positioned(
+            top: -50,
+            left: -50,
+            child: Container(
+              width: 250,
+              height: 250,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primaryGreen.withValues(alpha: isDark ? 0.08 : 0.05),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 70, sigmaY: 70),
+                child: const SizedBox(),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 100,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.gold.withValues(alpha: isDark ? 0.06 : 0.04),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+                child: const SizedBox(),
+              ),
+            ),
+          ),
+
+          // ---- Main Content ----
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  const Gap(15),
+                  
+                  // Header Row with App Logo & Skip button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Mini premium App logo decoration
+                      Row(
                         children: [
-                          Icon(
-                            onboardData[index].icon,
-                            size: 100,
-                            color: onboardData[index].iconColor,
-                          ),
-                          const Gap(50), // ✅ const
-                          Text(
-                            onboardData[index].title,
-                            style: AppTextStyles.title.copyWith(
-                              color: isDark ? AppColors.white : AppColors.card,
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.asset(
+                              Appconsts.mainLogo,
+                              width: 38,
+                              height: 38,
+                              fit: BoxFit.cover,
                             ),
                           ),
-                          const Gap(20), // ✅ const
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            child: Text(
-                              onboardData[index].subtitle,
-                              style: AppTextStyles.subTitle.copyWith(
-                                color: AppColors.darkGray,
-                                height: 2,
-                              ),
-                              textAlign: TextAlign.center,
+                          const Gap(10),
+                          Text(
+                            'قال رسول الله ﷺ',
+                            style: AppTextStyles.button.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : AppColors.card,
                             ),
                           ),
                         ],
-                      );
-                    },
+                      ),
+                      
+                      // Skip Button
+                      if (!isLast)
+                        TextButton(
+                          onPressed: () {
+                            HapticFeedback.mediumImpact();
+                            Hive.box('streak_box').put('onboarding_seen', true);
+                            Navigator.pushReplacementNamed(
+                              context,
+                              Approuter.dailyReminderScreen,
+                            );
+                          },
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            backgroundColor: isDark 
+                                ? Colors.white.withValues(alpha: 0.05) 
+                                : Colors.black.withValues(alpha: 0.03),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: Text(
+                            'تخطي',
+                            style: AppTextStyles.button.copyWith(
+                              fontSize: 12,
+                              color: isDark ? AppColors.mediumGray : AppColors.mutedGray,
+                            ),
+                          ),
+                        )
+                      else
+                        const SizedBox(height: 38),
+                    ],
                   ),
-                ),
+
+                  const Gap(40),
+
+                  // Carousel content wrapped in a premium Glassmorphic Card
+                  Expanded(
+                    child: PageView.builder(
+                      controller: pageController,
+                      itemCount: onboardData.length,
+                      onPageChanged: (index) {
+                        HapticFeedback.selectionClick();
+                        setState(() => currentIndex = index.toDouble());
+                      },
+                      itemBuilder: (context, index) {
+                        final item = onboardData[index];
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(24),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.04)
+                                        : Colors.black.withValues(alpha: 0.02),
+                                    borderRadius: BorderRadius.circular(24),
+                                    border: Border.all(
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.08)
+                                          : Colors.black.withValues(alpha: 0.04),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      // Glowing Medallion for Icon
+                                      Container(
+                                        width: 130,
+                                        height: 130,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              item.iconColor.withValues(alpha: 0.25),
+                                              item.iconColor.withValues(alpha: 0.08),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          border: Border.all(
+                                            color: item.iconColor.withValues(alpha: 0.4),
+                                            width: 1.5,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: item.iconColor.withValues(alpha: 0.15),
+                                              blurRadius: 20,
+                                              spreadRadius: 2,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Icon(
+                                          item.icon,
+                                          size: 64,
+                                          color: item.iconColor,
+                                        ),
+                                      ),
+                                      const Gap(45),
+                                      
+                                      // Title
+                                      Text(
+                                        item.title,
+                                        style: AppTextStyles.title.copyWith(
+                                          color: isDark ? AppColors.white : AppColors.card,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const Gap(18),
+                                      
+                                      // Subtitle
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                                        child: Text(
+                                          item.subtitle,
+                                          style: AppTextStyles.subTitle.copyWith(
+                                            color: isDark ? AppColors.mediumGray : AppColors.mutedGray,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            height: 1.8,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+
+                  const Gap(40),
+
+                  // Elongated rounded dots indicator
+                  DotsIndicator(
+                    dotsCount: onboardData.length,
+                    position: currentIndex,
+                    animate: true,
+                    animationDuration: const Duration(milliseconds: 200),
+                    decorator: DotsDecorator(
+                      activeColor: isLast ? AppColors.gold : AppColors.primaryGreen,
+                      color: isDark 
+                          ? Colors.white.withValues(alpha: 0.15) 
+                          : Colors.black.withValues(alpha: 0.08),
+                      size: const Size(8.0, 8.0),
+                      activeSize: const Size(20.0, 8.0),
+                      activeShape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
+                    ),
+                  ),
+                  
+                  const Gap(30),
+
+                  // Action Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: PrimaryButton(
+                      backGround: isLast ? AppColors.gold : AppColors.primaryGreen,
+                      widget: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            isLast ? 'ابدأ الآن' : 'التالي',
+                            style: AppTextStyles.buttont.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Gap(8),
+                          Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: AppColors.white,
+                            size: 16,
+                          ),
+                        ],
+                      ),
+                      ontap: () {
+                        HapticFeedback.lightImpact();
+                        if (!isLast) {
+                          pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        } else {
+                          // Save onboarding seen preference
+                          Hive.box('streak_box').put('onboarding_seen', true);
+                          Navigator.pushReplacementNamed(
+                            context,
+                            Approuter.dailyReminderScreen,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                  
+                  const Gap(40),
+                ],
               ),
-
-              DotsIndicator(
-                dotsCount: onboardData.length,
-                position: currentIndex,
-                animate: true,
-                animationDuration: const Duration(milliseconds: 200), // ✅ const
-                decorator: DotsDecorator(activeColor: AppColors.primaryGreen),
-              ),
-              const Gap(30), // ✅ const
-            ],
-          ),
-        ),
-      ),
-
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 50, left: 20, right: 20),
-        child: SizedBox(
-          width: double.infinity,
-          child: PrimaryButton(
-            widget: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  isLast ? 'ابدأ الآن' : 'التالي', // ✅ نص ديناميكي
-                  style: AppTextStyles.buttont,
-                ),
-                const Gap(5), // ✅ const
-
-                Icon(
-                  Icons.arrow_forward_ios_rounded, // ✅ اتجاه صح
-                  color: AppColors.white,
-                ),
-              ],
             ),
-            ontap: () {
-              if (!isLast) {
-                pageController.nextPage(
-                  duration: const Duration(milliseconds: 300), // ✅ const
-                  curve: Curves.easeInOut,
-                );
-              } else {
-                // ✅ احفظ إن المستخدم شاف الـ onboarding — مش هيظهر تاني
-                Hive.box('streak_box').put('onboarding_seen', true);
-                Navigator.pushReplacementNamed(context, Approuter.mainNavbar);
-              }
-            },
           ),
-        ),
+        ],
       ),
     );
   }
 }
 
-// ✅ إصلاح typo في اسم الـ Model
 class OnboardModel {
   final IconData icon;
   final Color iconColor;
@@ -179,7 +375,6 @@ class OnboardModel {
   final String subtitle;
 
   const OnboardModel({
-    // ✅ const constructor
     required this.icon,
     required this.title,
     required this.subtitle,

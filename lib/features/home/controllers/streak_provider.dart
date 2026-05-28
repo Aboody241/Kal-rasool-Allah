@@ -37,7 +37,7 @@ class StreakNotifier extends StateNotifier<StreakState> {
     refreshStats();
   }
 
-  void refreshStats() {
+  void refreshStats({bool isFromUserAction = false}) {
     try {
       final engine = ref.read(engineProvider);
       final stats = engine.getStats();
@@ -49,7 +49,7 @@ class StreakNotifier extends StateNotifier<StreakState> {
       final Set<DateTime> dates = datesStrs.map((s) => DateTime.parse(s)).toSet();
 
       bool streakJustIncremented = false;
-      if (currentStreak > state.currentStreak && hasCompletedToday) {
+      if (isFromUserAction && currentStreak > state.currentStreak && hasCompletedToday) {
         streakJustIncremented = true;
       }
 

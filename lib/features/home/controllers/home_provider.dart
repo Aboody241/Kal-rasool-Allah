@@ -91,7 +91,7 @@ class HomeNotifier extends StateNotifier<HomeState> {
     engine.completeSunnah(currentSunnah.id);
     
     // Refresh engine state in Riverpod (to update streak and stats)
-    ref.read(streakProvider.notifier).refreshStats();
+    ref.read(streakProvider.notifier).refreshStats(isFromUserAction: true);
 
     // Reload sunnahs so the UI reflects the completion status
     _loadSunnahsFromEngine();

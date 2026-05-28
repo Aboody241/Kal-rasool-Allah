@@ -113,7 +113,7 @@ class HomePage extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryGreen.withOpacity(0.1),
+                      color: AppColors.primaryGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(color: AppColors.primaryGreen, width: 1.5),
                     ),

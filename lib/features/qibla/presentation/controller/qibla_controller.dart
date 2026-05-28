@@ -100,7 +100,7 @@ final _getQiblaDirectionProvider = Provider<GetQiblaDirection>((ref) {
 });
 
 final qiblaControllerProvider =
-    StateNotifierProvider<QiblaController, QiblaState>((ref) {
+    StateNotifierProvider.autoDispose<QiblaController, QiblaState>((ref) {
   return QiblaController(
     getQiblaDirection: ref.read(_getQiblaDirectionProvider),
     compassService: ref.read(_compassServiceProvider),

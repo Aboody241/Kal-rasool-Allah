@@ -14,7 +14,89 @@ import 'package:kal_rasol_allah/features/home/controllers/home_provider.dart';
 class FavoriteScreen extends ConsumerWidget {
   const FavoriteScreen({super.key});
 
-  Widget _buildEmptyState(String text, bool isDark) {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(ThemeRiverPod);
+
+    return DefaultTabController(
+      length: 4,
+      child: Scaffold(
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios_new,
+                        color: isDark ? AppColors.white : AppColors.card,
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Text(
+                      'قائمة المفضلة',
+                      style: AppTextStyles.title.copyWith(
+                        color: isDark ? AppColors.white : AppColors.card,
+                      ),
+                    ),
+                    const SizedBox(width: 48), // alignment helper
+                  ],
+                ),
+                const Gap(10),
+                TabBar(
+                  dividerColor: Colors.transparent,
+                  labelColor: isDark ? AppColors.gold : AppColors.primaryGreen,
+                  unselectedLabelColor: AppColors.mediumGray,
+                  indicatorColor: isDark ? AppColors.gold : AppColors.primaryGreen,
+                  labelStyle: const TextStyle(
+                    fontFamily: ArabicFont.cairo,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  tabs: const [
+                    Tab(text: 'سنن'),
+                    Tab(text: 'أذكار'),
+                    Tab(text: 'أدعية'),
+                    Tab(text: 'أسماء الله'),
+                  ],
+                ),
+                const Gap(16),
+                const Expanded(
+                  child: TabBarView(
+                    children: [
+                      SunnahFavoritesTab(),
+                      AzkarFavoritesTab(),
+                      DuaFavoritesTab(),
+                      NamesFavoritesTab(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// 1. Reusable Empty State Widget
+// ============================================================
+class _EmptyFavoriteState extends StatelessWidget {
+  final String text;
+  final bool isDark;
+
+  const _EmptyFavoriteState({
+    required this.text,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -23,8 +105,8 @@ class FavoriteScreen extends ConsumerWidget {
             Icons.favorite_border_rounded,
             size: 64,
             color: isDark
-                ? AppColors.lightGray.withOpacity(0.3)
-                : AppColors.card.withOpacity(0.2),
+                ? AppColors.lightGray.withValues(alpha: 0.3)
+                : AppColors.card.withValues(alpha: 0.2),
           ),
           const Gap(16),
           Text(
@@ -34,23 +116,43 @@ class FavoriteScreen extends ConsumerWidget {
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: isDark
-                  ? AppColors.lightGray.withOpacity(0.6)
-                  : AppColors.card.withOpacity(0.5),
+                  ? AppColors.lightGray.withValues(alpha: 0.6)
+                  : AppColors.card.withValues(alpha: 0.5),
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildSunnahList(BuildContext context, WidgetRef ref, List<dynamic> items, bool isDark) {
-    if (items.isEmpty) {
-      return _buildEmptyState('لا توجد سنن في المفضلة حالياً', isDark);
+// ============================================================
+// 2. Tab standalone components for performance isolation
+// ============================================================
+
+class SunnahFavoritesTab extends ConsumerWidget {
+  const SunnahFavoritesTab({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(ThemeRiverPod);
+    
+    // Select only the favorited sunnah list
+    final favoriteSunnahs = ref.watch(
+      homeProvider.select((s) => s.allSunnahs
+          .where((item) => s.favoriteHadithIds.contains(item.id))
+          .toList()),
+    );
+
+    if (favoriteSunnahs.isEmpty) {
+      return _EmptyFavoriteState(text: 'لا توجد سنن في المفضلة حالياً', isDark: isDark);
     }
+
     return ListView.builder(
-      itemCount: items.length,
+      itemCount: favoriteSunnahs.length,
+      cacheExtent: 300,
       itemBuilder: (context, index) {
-        final sunnah = items[index];
+        final sunnah = favoriteSunnahs[index];
         final delay = (index % 8) * 80;
         return TweenAnimationBuilder<double>(
           key: ValueKey(sunnah.id),
@@ -95,13 +197,13 @@ class FavoriteScreen extends ConsumerWidget {
                         );
                       },
                     ),
-                    if (sunnah.category != null && sunnah.category.toString().isNotEmpty)
+                    if (sunnah.category.isNotEmpty)
                       Text(
                         sunnah.category,
                         style: ArabicTextStyle(
                           arabicFont: ArabicFont.cairo,
                           fontSize: 12,
-                          color: isDark ? AppColors.mediumGray : Colors.black,
+                          color: isDark ? AppColors.mediumGray : AppColors.mutedGray,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -113,26 +215,26 @@ class FavoriteScreen extends ConsumerWidget {
                   style: ArabicTextStyle(
                     arabicFont: ArabicFont.amiri,
                     fontSize: 22,
-                    color: isDark ? AppColors.white : Colors.black,
+                    color: isDark ? AppColors.white : AppColors.card,
                     fontWeight: FontWeight.w600,
                     height: 1.6,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                if (sunnah.description != null && sunnah.description.toString().isNotEmpty) ...[
+                if (sunnah.description.isNotEmpty) ...[
                   const Gap(15),
                   Text(
                     sunnah.description,
                     style: ArabicTextStyle(
                       arabicFont: ArabicFont.amiri,
                       fontSize: 18,
-                      color: isDark ? AppColors.offWhite : Colors.black,
+                      color: isDark ? AppColors.offWhite : AppColors.card,
                       fontWeight: FontWeight.w500,
                     ),
                     textAlign: TextAlign.center,
                   ),
                 ],
-                if (sunnah.source != null && sunnah.source.toString().isNotEmpty) ...[
+                if (sunnah.source.isNotEmpty) ...[
                   const Gap(15),
                   Text(
                     sunnah.source,
@@ -152,15 +254,31 @@ class FavoriteScreen extends ConsumerWidget {
       },
     );
   }
+}
 
-  Widget _buildAzkarList(BuildContext context, WidgetRef ref, List<dynamic> items, bool isDark) {
-    if (items.isEmpty) {
-      return _buildEmptyState('لا توجد أذكار في المفضلة حالياً', isDark);
+class AzkarFavoritesTab extends ConsumerWidget {
+  const AzkarFavoritesTab({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(ThemeRiverPod);
+    
+    // Select only the favorited zikr list
+    final favoriteAzkar = ref.watch(
+      azkarProvider.select((s) => s.allAzkar
+          .where((item) => s.favoriteZikrIds.contains(item.id))
+          .toList()),
+    );
+
+    if (favoriteAzkar.isEmpty) {
+      return _EmptyFavoriteState(text: 'لا توجد أذكار في المفضلة حالياً', isDark: isDark);
     }
+
     return ListView.builder(
-      itemCount: items.length,
+      itemCount: favoriteAzkar.length,
+      cacheExtent: 300,
       itemBuilder: (context, index) {
-        final zikr = items[index];
+        final zikr = favoriteAzkar[index];
         final delay = (index % 8) * 80;
         return TweenAnimationBuilder<double>(
           key: ValueKey(zikr.id),
@@ -216,9 +334,9 @@ class FavoriteScreen extends ConsumerWidget {
                         );
                       },
                     ),
-                    if (zikr.source != null && zikr.source.isNotEmpty)
+                    if (zikr.source != null && zikr.source!.isNotEmpty)
                       Text(
-                        zikr.source,
+                        zikr.source!,
                         style: TextStyle(
                           fontFamily: ArabicFont.cairo,
                           fontSize: 12,
@@ -234,15 +352,32 @@ class FavoriteScreen extends ConsumerWidget {
       },
     );
   }
+}
 
-  Widget _buildDuasList(BuildContext context, WidgetRef ref, List<dynamic> items, DuaNotifier notifier, bool isDark) {
-    if (items.isEmpty) {
-      return _buildEmptyState('لا توجد أدعية في المفضلة حالياً', isDark);
+class DuaFavoritesTab extends ConsumerWidget {
+  const DuaFavoritesTab({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(ThemeRiverPod);
+    
+    // Select only the favorited dua list
+    final favoriteDuas = ref.watch(
+      duaProvider.select((s) => s.allDuas
+          .where((item) => s.favoriteDuaIds.contains(item.id))
+          .toList()),
+    );
+    final duaNotifier = ref.read(duaProvider.notifier);
+
+    if (favoriteDuas.isEmpty) {
+      return _EmptyFavoriteState(text: 'لا توجد أدعية في المفضلة حالياً', isDark: isDark);
     }
+
     return ListView.builder(
-      itemCount: items.length,
+      itemCount: favoriteDuas.length,
+      cacheExtent: 300,
       itemBuilder: (context, index) {
-        final dua = items[index];
+        final dua = favoriteDuas[index];
         final delay = (index % 8) * 80;
         return TweenAnimationBuilder<double>(
           key: ValueKey(dua.id),
@@ -270,7 +405,7 @@ class FavoriteScreen extends ConsumerWidget {
                     IconButton(
                       icon: const Icon(Icons.favorite_rounded, color: Colors.red, size: 22),
                       onPressed: () {
-                        notifier.toggleFavorite(dua.id);
+                        duaNotifier.toggleFavorite(dua.id);
                         ScaffoldMessenger.of(context).clearSnackBars();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -301,7 +436,7 @@ class FavoriteScreen extends ConsumerWidget {
                           arabicFont: ArabicFont.dubai,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.lightGray,
+                          color: isDark ? AppColors.lightGray : AppColors.card,
                         ),
                       ),
                       if (dua.source != null) ...[
@@ -327,15 +462,32 @@ class FavoriteScreen extends ConsumerWidget {
       },
     );
   }
+}
 
-  Widget _buildNamesList(BuildContext context, WidgetRef ref, List<dynamic> items, NamesOfAllahNotifier notifier, bool isDark) {
-    if (items.isEmpty) {
-      return _buildEmptyState('لا توجد عناصر في المفضلة حالياً', isDark);
+class NamesFavoritesTab extends ConsumerWidget {
+  const NamesFavoritesTab({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(ThemeRiverPod);
+    
+    // Select only the favorited names list
+    final favoriteNames = ref.watch(
+      namesOfAllahProvider.select((s) => s.allNames
+          .where((item) => s.favoriteIds.contains(item.id))
+          .toList()),
+    );
+    final namesNotifier = ref.read(namesOfAllahProvider.notifier);
+
+    if (favoriteNames.isEmpty) {
+      return _EmptyFavoriteState(text: 'لا توجد عناصر في المفضلة حالياً', isDark: isDark);
     }
+
     return ListView.builder(
-      itemCount: items.length,
+      itemCount: favoriteNames.length,
+      cacheExtent: 300,
       itemBuilder: (context, index) {
-        final name = items[index];
+        final name = favoriteNames[index];
         final delay = (index % 8) * 80;
         return TweenAnimationBuilder<double>(
           key: ValueKey(name.id),
@@ -363,7 +515,7 @@ class FavoriteScreen extends ConsumerWidget {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryGreen.withOpacity(0.2),
+                        color: AppColors.primaryGreen.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
@@ -387,7 +539,7 @@ class FavoriteScreen extends ConsumerWidget {
                               arabicFont: ArabicFont.amiri,
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.white,
+                              color: isDark ? AppColors.white : AppColors.card,
                             ),
                           ),
                           const Gap(3),
@@ -397,7 +549,7 @@ class FavoriteScreen extends ConsumerWidget {
                               arabicFont: ArabicFont.cairo,
                               fontSize: 13,
                               fontWeight: FontWeight.w400,
-                              color: AppColors.mediumGray,
+                              color: isDark ? AppColors.mediumGray : AppColors.mutedGray,
                             ),
                           ),
                         ],
@@ -406,7 +558,7 @@ class FavoriteScreen extends ConsumerWidget {
                     IconButton(
                       icon: const Icon(Icons.favorite_rounded, color: Colors.red, size: 22),
                       onPressed: () {
-                        notifier.toggleFavorite(name.id);
+                        namesNotifier.toggleFavorite(name.id);
                         ScaffoldMessenger.of(context).clearSnackBars();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -433,7 +585,7 @@ class FavoriteScreen extends ConsumerWidget {
                     arabicFont: ArabicFont.cairo,
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.lightGray,
+                    color: isDark ? AppColors.lightGray : AppColors.card,
                   ),
                 ),
               ],
@@ -441,99 +593,6 @@ class FavoriteScreen extends ConsumerWidget {
           ),
         );
       },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = ref.watch(ThemeRiverPod);
-
-    // Watch all favorite states
-    final homeState = ref.watch(homeProvider);
-    final azkarState = ref.watch(azkarProvider);
-    final duaState = ref.watch(duaProvider);
-    final duaNotifier = ref.read(duaProvider.notifier);
-    final namesState = ref.watch(namesOfAllahProvider);
-    final namesNotifier = ref.read(namesOfAllahProvider.notifier);
-
-    // Filter favorite lists
-    final favoriteSunnahs = homeState.allSunnahs
-        .where((s) => homeState.favoriteHadithIds.contains(s.id))
-        .toList();
-
-    final favoriteAzkar = azkarState.allAzkar
-        .where((z) => azkarState.favoriteZikrIds.contains(z.id))
-        .toList();
-
-    final favoriteDuas = duaState.allDuas
-        .where((d) => duaState.favoriteDuaIds.contains(d.id))
-        .toList();
-
-    final favoriteNames = namesState.allNames
-        .where((n) => namesState.favoriteIds.contains(n.id))
-        .toList();
-
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.arrow_back_ios_new,
-                        color: isDark ? AppColors.white : AppColors.card,
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Text(
-                      'قائمة المفضلة',
-                      style: AppTextStyles.title.copyWith(
-                        color: isDark ? AppColors.white : AppColors.card,
-                      ),
-                    ),
-                    const SizedBox(width: 48), // alignment helper
-                  ],
-                ),
-                const Gap(10),
-                TabBar(
-                  dividerColor: Colors.transparent,
-                  labelColor: isDark ? AppColors.gold : AppColors.primaryGreen,
-                  unselectedLabelColor: AppColors.mediumGray,
-                  indicatorColor: isDark ? AppColors.gold : AppColors.primaryGreen,
-                  labelStyle: const TextStyle(
-                    fontFamily: ArabicFont.cairo,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  tabs: const [
-                    Tab(text: 'سنن'),
-                    Tab(text: 'أذكار'),
-                    Tab(text: 'أدعية'),
-                    Tab(text: 'أسماء الله'),
-                  ],
-                ),
-                const Gap(16),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      _buildSunnahList(context, ref, favoriteSunnahs, isDark),
-                      _buildAzkarList(context, ref, favoriteAzkar, isDark),
-                      _buildDuasList(context, ref, favoriteDuas, duaNotifier, isDark),
-                      _buildNamesList(context, ref, favoriteNames, namesNotifier, isDark),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

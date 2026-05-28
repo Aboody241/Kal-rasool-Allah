@@ -335,7 +335,7 @@ class _SebhaScreenState extends ConsumerState<SebhaScreen>
                   const SizedBox(width: 48),
                 ],
               ),
-              Gap(20),
+              const Gap(20),
               Expanded(
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
@@ -371,9 +371,9 @@ class _SebhaScreenState extends ConsumerState<SebhaScreen>
                                     value: sebhaState.count / 33.0,
                                     backgroundColor: isDark
                                         ? AppColors.gold.withOpacity(0.2)
-                                        : Colors.grey.shade200,
+                                        : AppColors.mediumGray,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      isDark ? AppColors.gold : AppColors.primaryGreen,
+                                      isDark ? AppColors.gold : AppColors.gold,
                                     ),
                                     minHeight: 8,
                                   ),
@@ -396,7 +396,7 @@ class _SebhaScreenState extends ConsumerState<SebhaScreen>
                                 arabicFont: ArabicFont.amiri,
                                 fontSize: 26,
                                 fontWeight: FontWeight.normal,
-                                color: AppColors.white,
+                                color: isDark? AppColors.white : AppColors.card,
                               ),
                             ),
                           ),
@@ -404,38 +404,41 @@ class _SebhaScreenState extends ConsumerState<SebhaScreen>
 
                         const Gap(50),
 
-                        // Main count (AnimatedSwitcher for vertical sliding beads effect)
+                        // Main count (AnimatedSwitcher for vertical sliding beads effect wrapped in RepaintBoundary)
                         ClipRect(
                           child: SizedBox(
                             height: 120,
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 500),
-                              switchInCurve: Curves.easeOutCubic,
-                              switchOutCurve: Curves.easeInCubic,
-                              transitionBuilder: (child, animation) {
-                                final isIncoming =
-                                    child.key == ValueKey(sebhaState.count);
+                            child: RepaintBoundary(
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 500),
+                                switchInCurve: Curves.easeOutCubic,
+                                switchOutCurve: Curves.easeInCubic,
+                                transitionBuilder: (child, animation) {
+                                  final isIncoming =
+                                      child.key == ValueKey(sebhaState.count);
 
-                                final slideOffset = Tween<Offset>(
-                                  begin: isIncoming
-                                      ? const Offset(0, 0.5)
-                                      : const Offset(0, -0.5),
-                                  end: Offset.zero,
-                                ).animate(animation);
+                                  final slideOffset = Tween<Offset>(
+                                    begin: isIncoming
+                                        ? const Offset(0, 0.5)
+                                        : const Offset(0, -0.5),
+                                    end: Offset.zero,
+                                  ).animate(animation);
 
-                                return SlideTransition(
-                                  position: slideOffset,
-                                  child: FadeTransition(
-                                    opacity: animation,
-                                    child: child,
+                                  return SlideTransition(
+                                    position: slideOffset,
+                                    child: FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  '${sebhaState.count}',
+                                  key: ValueKey(sebhaState.count),
+                                  style: AppTextStyles.title.copyWith(
+                                    fontSize: 100,
+                                    color: isDark? AppColors.offWhite : AppColors.card
                                   ),
-                                );
-                              },
-                              child: Text(
-                                '${sebhaState.count}',
-                                key: ValueKey(sebhaState.count),
-                                style: AppTextStyles.title.copyWith(
-                                  fontSize: 100,
                                 ),
                               ),
                             ),

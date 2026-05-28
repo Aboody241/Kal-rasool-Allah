@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
-import 'package:kal_rasol_allah/core/const/consts.dart';
-import 'package:kal_rasol_allah/core/routes/approuter.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/features/home/controllers/streak_provider.dart';

@@ -32,10 +32,6 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
     return EventList<Event>(events: events);
   }
 
-  void _updateMarkedDates(Set<DateTime> allDates) {
-    _markedDates = _buildMarkedDates(allDates);
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = ref.watch(ThemeRiverPod);

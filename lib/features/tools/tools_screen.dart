@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:kal_rasol_allah/controllers/theme/theme_riverPod.dart';
 import 'package:kal_rasol_allah/core/routes/approuter.dart';
 import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
+import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/core/widgets/container_box.dart';
 import 'package:kal_rasol_allah/core/widgets/pages_title.dart';
 
@@ -74,6 +75,8 @@ class ToolsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(ThemeRiverPod);
+        final isDark = ref.watch(ThemeRiverPod);
+
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -113,7 +116,9 @@ class ToolsScreen extends ConsumerWidget {
                             children: [
                               item.icon,
                               const Gap(20), // ✅ const
-                              Text(item.title, style: AppTextStyles.body),
+                              Text(item.title, style: AppTextStyles.body.copyWith(
+                                color: isDark ? AppColors.white : AppColors.background
+                              )),
                             ],
                           ),
                         ),

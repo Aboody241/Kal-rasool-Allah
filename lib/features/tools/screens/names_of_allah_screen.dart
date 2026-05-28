@@ -320,8 +320,10 @@ class _AllahNameItemState extends ConsumerState<_AllahNameItem>
 
   @override
   Widget build(BuildContext context) {
-    final namesState = ref.watch(namesOfAllahProvider);
-    final isFavorite = namesState.favoriteIds.contains(widget.id);
+    final isFavorite = ref.watch(
+      namesOfAllahProvider.select((s) => s.favoriteIds.contains(widget.id)),
+    );
+    final isDark = ref.watch(ThemeRiverPod);
 
     return GestureDetector(
       onTap: _toggle,
@@ -347,7 +349,7 @@ class _AllahNameItemState extends ConsumerState<_AllahNameItem>
                           arabicFont: ArabicFont.amiri,
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.white,
+                          color: isDark? AppColors.white : AppColors.card,
                         ),
                       ),
                       const Gap(3),
@@ -357,7 +359,7 @@ class _AllahNameItemState extends ConsumerState<_AllahNameItem>
                           arabicFont: ArabicFont.cairo,
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
-                          color: AppColors.mediumGray,
+                          color: isDark? AppColors.mediumGray : AppColors.mutedGray,
                         ),
                       ),
                     ],
@@ -431,7 +433,7 @@ class _AllahNameItemState extends ConsumerState<_AllahNameItem>
                         arabicFont: ArabicFont.cairo,
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.lightGray,
+                        color: isDark? AppColors.lightGray : AppColors.card,
                       ),
                     ),
                     const Gap(4),
