@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="screenshots/home.png" width="250"/>
+<img src="assets/consts/logo.jpg" width="250"/>
 
 ### تطبيق إسلامي متكامل للأذكار والأدعية والسنن النبوية
 
