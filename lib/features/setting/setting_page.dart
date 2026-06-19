@@ -19,24 +19,38 @@ class SettingsPage extends ConsumerStatefulWidget {
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _notificationsEnabled = false;
-  TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
+  bool _morningEnabled = false;
+  bool _eveningEnabled = false;
+  bool _dhikrEnabled = false;
 
   final _notifService = NotificationService();
 
   @override
   void initState() {
     super.initState();
-    // Load saved settings from Hive
-    _notificationsEnabled = _notifService.getSavedEnabled();
-    _reminderTime = _notifService.getSavedTime();
+    _loadSettings();
   }
 
-  // ✅ تنسيق الوقت
-  String get _formattedTime {
-    final hour = _reminderTime.hourOfPeriod == 0 ? 12 : _reminderTime.hourOfPeriod;
-    final minute = _reminderTime.minute.toString().padLeft(2, '0');
-    final period = _reminderTime.period == DayPeriod.am ? 'صباحًا' : 'مساءً';
-    return '$hour:$minute $period';
+  void _loadSettings() {
+    _notificationsEnabled = _notifService.getBoolSetting(NotificationService.kMasterEnabled);
+    _morningEnabled = _notifService.getBoolSetting(NotificationService.kMorningEnabled);
+    _eveningEnabled = _notifService.getBoolSetting(NotificationService.kEveningEnabled);
+    _dhikrEnabled = _notifService.getBoolSetting(NotificationService.kDhikrEnabled);
+  }
+
+  String get _reminderSubtitle {
+    if (!_notificationsEnabled) {
+      return 'جميع التنبيهات معطلة 🔕';
+    }
+    final List<String> active = [];
+    if (_morningEnabled) active.add('الصباح');
+    if (_eveningEnabled) active.add('المساء');
+    if (_dhikrEnabled) active.add('الأذكار');
+    
+    if (active.isEmpty) {
+      return 'مفعّل (لم يتم اختيار أي ورد)';
+    }
+    return 'نشط: ${active.join(" و")} 🌿';
   }
 
   @override
@@ -100,16 +114,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 await Navigator.pushNamed(context, Approuter.dailyReminderScreen);
                                 // Reload settings when we return
                                 setState(() {
-                                  _notificationsEnabled = _notifService.getSavedEnabled();
-                                  _reminderTime = _notifService.getSavedTime();
+                                  _loadSettings();
                                 });
                               },
                               behavior: HitTestBehavior.opaque,
                               child: _SettingsTile(
                                 title: 'التذكير اليومي بالسُنّة',
-                                subtitle: _notificationsEnabled 
-                                    ? 'مفعّل في وقت: $_formattedTime' 
-                                    : 'غير مفعّل',
+                                subtitle: _reminderSubtitle,
                                 trailing: const Icon(
                                   Icons.arrow_back_ios_new_rounded,
                                   color: AppColors.primaryGreen,

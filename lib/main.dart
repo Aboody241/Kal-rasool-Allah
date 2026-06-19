@@ -53,6 +53,7 @@ class KalRasoolAllah extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = ref.watch(ThemeRiverPod);
     return MaterialApp(
+      navigatorKey: Approuter.navigatorKey,
       debugShowCheckedModeBanner: false,
 
       // ✅ RTL + Arabic locale

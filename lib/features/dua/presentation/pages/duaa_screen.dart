@@ -265,11 +265,12 @@ class _DuaCard extends ConsumerWidget {
                   dua.text,
                   textAlign: TextAlign.start,
                   style: ArabicTextStyle(
-                    arabicFont: ArabicFont.dubai,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? AppColors.lightGray : AppColors.card,
-                  ),
+                arabicFont: ArabicFont.changa,
+                fontSize: 19,
+                fontWeight: FontWeight.normal,
+                color: isDark ? AppColors.white : AppColors.card,
+                height: 1.6,
+              ),
                 ),
                 if (dua.source != null) ...[
                   const Gap(15),

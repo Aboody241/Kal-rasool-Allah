@@ -64,6 +64,14 @@ class StreakNotifier extends StateNotifier<StreakState> {
     }
   }
 
+  void completeDailyGoal() {
+    try {
+      final engine = ref.read(engineProvider);
+      engine.completeDailyGoal();
+      refreshStats(isFromUserAction: true);
+    } catch (_) {}
+  }
+
   void markAnimationPlayed() {
     state = state.copyWith(streakJustIncremented: false);
   }

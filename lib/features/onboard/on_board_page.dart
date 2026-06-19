@@ -65,52 +65,10 @@ class _OnboardScreenState extends ConsumerState<OnboardScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // ---- Background Gradient ----
+          // ---- Background Gradient & Blur Orbs (RepaintBoundary optimized for smooth PageView scrolling) ----
           Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: isDark
-                      ? [const Color(0xFF0C1712), const Color(0xFF050806)]
-                      : [const Color(0xFFF3F7F5), const Color(0xFFE5EDE9)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-            ),
-          ),
-
-          // ---- Floating Blur Orbs ----
-          Positioned(
-            top: -50,
-            left: -50,
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primaryGreen.withValues(alpha: isDark ? 0.08 : 0.05),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 70, sigmaY: 70),
-                child: const SizedBox(),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.gold.withValues(alpha: isDark ? 0.06 : 0.04),
-              ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-                child: const SizedBox(),
-              ),
+            child: RepaintBoundary(
+              child: _OnboardBackground(isDark: isDark),
             ),
           ),
 
@@ -199,92 +157,86 @@ class _OnboardScreenState extends ConsumerState<OnboardScreen> {
                         return Center(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(24),
-                              child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-                                  decoration: BoxDecoration(
-                                    color: isDark
-                                        ? Colors.white.withValues(alpha: 0.04)
-                                        : Colors.black.withValues(alpha: 0.02),
-                                    borderRadius: BorderRadius.circular(24),
-                                    border: Border.all(
-                                      color: isDark
-                                          ? Colors.white.withValues(alpha: 0.08)
-                                          : Colors.black.withValues(alpha: 0.04),
-                                      width: 1,
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.05)
+                                    : Colors.black.withValues(alpha: 0.02),
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.08)
+                                      : Colors.black.withValues(alpha: 0.04),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Glowing Medallion for Icon
+                                  Container(
+                                    width: 130,
+                                    height: 130,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          item.iconColor.withValues(alpha: 0.25),
+                                          item.iconColor.withValues(alpha: 0.08),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      border: Border.all(
+                                        color: item.iconColor.withValues(alpha: 0.4),
+                                        width: 1.5,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: item.iconColor.withValues(alpha: 0.15),
+                                          blurRadius: 20,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Icon(
+                                      item.icon,
+                                      size: 64,
+                                      color: item.iconColor,
                                     ),
                                   ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      // Glowing Medallion for Icon
-                                      Container(
-                                        width: 130,
-                                        height: 130,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              item.iconColor.withValues(alpha: 0.25),
-                                              item.iconColor.withValues(alpha: 0.08),
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          border: Border.all(
-                                            color: item.iconColor.withValues(alpha: 0.4),
-                                            width: 1.5,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: item.iconColor.withValues(alpha: 0.15),
-                                              blurRadius: 20,
-                                              spreadRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                        child: Icon(
-                                          item.icon,
-                                          size: 64,
-                                          color: item.iconColor,
-                                        ),
-                                      ),
-                                      const Gap(45),
-                                      
-                                      // Title
-                                      Text(
-                                        item.title,
-                                        style: AppTextStyles.title.copyWith(
-                                          color: isDark ? AppColors.white : AppColors.card,
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      const Gap(18),
-                                      
-                                      // Subtitle
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                                        child: Text(
-                                          item.subtitle,
-                                          style: AppTextStyles.subTitle.copyWith(
-                                            color: isDark ? AppColors.mediumGray : AppColors.mutedGray,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                            height: 1.8,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ],
+                                  const Gap(45),
+                                  
+                                  // Title
+                                  Text(
+                                    item.title,
+                                    style: AppTextStyles.title.copyWith(
+                                      color: isDark ? AppColors.white : AppColors.card,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                ),
+                                  const Gap(18),
+                                  
+                                  // Subtitle
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                                    child: Text(
+                                      item.subtitle,
+                                      style: AppTextStyles.subTitle.copyWith(
+                                        color: isDark ? AppColors.mediumGray : AppColors.mutedGray,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        height: 1.8,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -380,4 +332,64 @@ class OnboardModel {
     required this.subtitle,
     required this.iconColor,
   });
+}
+
+class _OnboardBackground extends StatelessWidget {
+  final bool isDark;
+  const _OnboardBackground({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // ---- Background Gradient ----
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDark
+                  ? [const Color(0xFF0C1712), const Color(0xFF050806)]
+                  : [const Color(0xFFF3F7F5), const Color(0xFFE5EDE9)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
+        // ---- Floating Blur Orbs ----
+        Positioned(
+          top: -50,
+          left: -50,
+          child: Container(
+            width: 250,
+            height: 250,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  AppColors.primaryGreen.withValues(alpha: isDark ? 0.18 : 0.12),
+                  AppColors.primaryGreen.withValues(alpha: 0.0),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 100,
+          right: -100,
+          child: Container(
+            width: 300,
+            height: 300,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  AppColors.gold.withValues(alpha: isDark ? 0.15 : 0.10),
+                  AppColors.gold.withValues(alpha: 0.0),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

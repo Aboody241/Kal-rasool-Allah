@@ -17,6 +17,8 @@ import 'package:kal_rasol_allah/features/tools/tools_screen.dart';
 import 'package:kal_rasol_allah/main_nav_bar.dart';
 
 class Approuter {
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   static const String splashScreen = '/';
   static const String notfoundscreen = '/notfound';
   static const String onboardScreen = '/onboardScreen';
@@ -63,7 +65,8 @@ class Approuter {
       case qiblaScreen:
         return _customPageRoute(const QiblaScreen());
       case azkarScreen:
-        return _customPageRoute(const AzkarScreen());
+        final initialCategory = setting.arguments as String?;
+        return _customPageRoute(AzkarScreen(initialCategory: initialCategory));
       default:
         return MaterialPageRoute(builder: (_) => const NotfoundScreen());
     }

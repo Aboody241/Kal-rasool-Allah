@@ -96,6 +96,20 @@ class SunnahEngine {
     }
   }
 
+  /// Marks the daily goal as completed (e.g. from Athkar daily reading) and increments streak
+  void completeDailyGoal() {
+    resetIfNewDay();
+    
+    // Update Completion
+    bool isFirstCompletionToday = _dailyTracker.forceCompleteToday();
+
+    // Update Streak (Anti-Cheat)
+    if (isFirstCompletionToday) {
+      _streakManager.incrementStreak();
+      _dailyTracker.updateLastActiveDate();
+    }
+  }
+
   int getStreak() => _streakManager.currentStreak;
 
   Map<String, dynamic> getStats() {

@@ -8,9 +8,11 @@ import 'package:kal_rasol_allah/core/theme/apptext_style.dart';
 import 'package:kal_rasol_allah/core/theme/colors.dart';
 import 'package:kal_rasol_allah/features/dua/data/dua_model.dart';
 import 'package:kal_rasol_allah/features/tools/controllers/azkar_provider.dart';
+import 'package:kal_rasol_allah/features/home/controllers/streak_provider.dart';
 
 class AzkarScreen extends ConsumerStatefulWidget {
-  const AzkarScreen({super.key});
+  final String? initialCategory;
+  const AzkarScreen({super.key, this.initialCategory});
 
   @override
   ConsumerState<AzkarScreen> createState() => _AzkarScreenState();
@@ -18,6 +20,15 @@ class AzkarScreen extends ConsumerStatefulWidget {
 
 class _AzkarScreenState extends ConsumerState<AzkarScreen> {
   bool _isSearching = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Complete daily streak goal when reading any Athkar!
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(streakProvider.notifier).completeDailyGoal();
+    });
+  }
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
   bool _showResetButton =
@@ -371,8 +382,17 @@ class _AzkarScreenState extends ConsumerState<AzkarScreen> {
         .where((z) => categories.contains(z.category))
         .toList();
 
+    int initialIndex = 0;
+    if (widget.initialCategory != null) {
+      final index = categoriesWithFavorites.indexOf(widget.initialCategory!);
+      if (index != -1) {
+        initialIndex = index;
+      }
+    }
+
     return DefaultTabController(
       length: categoriesWithFavorites.length,
+      initialIndex: initialIndex,
       child: Scaffold(
         body: SafeArea(
           child: Padding(

@@ -99,6 +99,24 @@ class DailyTracker {
     return wasFirstCompletion;
   }
 
+  /// Force mark today as completed (e.g. via Athkar or daily dhikr goal)
+  /// Returns true if this was the first completion today.
+  bool forceCompleteToday() {
+    if (_hasCompletedToday) return false;
+    
+    _hasCompletedToday = true;
+    _saveData(_kHasCompletedToday, _hasCompletedToday);
+
+    final now = DateTime.now();
+    final todayStr = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    if (!_allCompletedDates.contains(todayStr)) {
+      _allCompletedDates.add(todayStr);
+      _saveData(_kAllCompletedDates, _allCompletedDates.toList());
+    }
+    
+    return true;
+  }
+
   bool isCompletedToday(int id) => _todayCompletedIds.contains(id);
   
   bool get hasCompletedToday => _hasCompletedToday;
