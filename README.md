@@ -1,95 +1,122 @@
-# 📖 Qal Rasool Allah
+# 📖 قال رسول الله
 
 <div align="center">
 
-<img src="assets/images/logo.png" width="150"/>
+<img src="screenshots/home.png" width="250"/>
 
-### A Modern Islamic Companion App for Daily Remembrance, Duas, and Sunnah Practice
+### تطبيق إسلامي متكامل للأذكار والأدعية والسنن النبوية
 
-Built with ❤️ using Flutter
+**تم تطويره باستخدام Flutter ❤️**
 
 </div>
 
 ---
 
-## 🌟 Overview
+## 🌟 نبذة عن المشروع
 
-**Qal Rasool Allah** is a modern Islamic mobile application designed to help Muslims strengthen their daily connection with Allah through authentic adhkar, duas, prophetic sunnahs, and smart reminders.
+**قال رسول الله** هو تطبيق إسلامي حديث يهدف إلى مساعدة المسلمين على المحافظة على الأذكار اليومية والسنن النبوية والأعمال الصالحة من خلال تجربة استخدام عصرية وسلسة.
 
-The app provides a beautiful and engaging experience that encourages consistency in worship, remembrance, and good deeds through motivation systems, achievements, and personalized notifications.
-
----
-
-## ✨ Features
-
-### 📿 Daily Adhkar
-- Morning Adhkar
-- Evening Adhkar
-- After Prayer Adhkar
-- Sleep Adhkar
-- Wake-Up Adhkar
-- General Islamic Remembrances
-
-### 🤲 Duas Collection
-- Extensive collection of Islamic supplications
-- Categorized duas for different situations
-- Easy-to-read and beautifully formatted interface
-
-### 🌙 Sunnah Practice
-- Daily prophetic sunnahs
-- Actionable sunnah recommendations
-- Progress tracking for completed sunnahs
-
-### 🔔 Smart Notifications
-- Daily reminders
-- Adhkar notifications
-- Sunnah reminders
-- Motivational Islamic messages
-
-### 🏆 Achievement System
-- Points and rewards system
-- Islamic achievement badges
-- Streak tracking
-- Progress monitoring
-
-### 📊 Statistics & Insights
-- Completed adhkar count
-- Sunnah completion tracking
-- Daily activity statistics
-- Achievement progress overview
-
-### 🎨 Premium User Experience
-- Clean and modern design
-- Light and dark mode support
-- Smooth animations
-- User-friendly interface
+يجمع التطبيق بين الأذكار والأدعية والسنن النبوية والإشعارات الذكية ونظام الإنجازات والتحفيز لمساعدة المستخدم على بناء عادات إسلامية يومية مستمرة.
 
 ---
 
-## 📱 Screenshots
+## 🎯 أهداف المشروع
 
-> Screenshots will be added soon.
-
-| Home | Adhkar | Duas |
-|------|--------|------|
-| Screenshot | Screenshot | Screenshot |
+- نشر السنن النبوية العملية.
+- تشجيع المسلمين على المحافظة على الأذكار.
+- تذكير المستخدم بالأعمال الصالحة.
+- تعزيز الاستمرارية في العبادة.
+- تقديم تجربة إسلامية حديثة وسهلة الاستخدام.
+- تحفيز المستخدم من خلال النقاط والإنجازات.
 
 ---
 
-## 🏗️ Project Architecture
+# ✨ المميزات
+
+## 📿 الأذكار
+
+- أذكار الصباح
+- أذكار المساء
+- أذكار النوم
+- أذكار الاستيقاظ
+- أذكار بعد الصلاة
+- أذكار متنوعة
+
+## 🤲 الأدعية
+
+- مكتبة كبيرة من الأدعية
+- تصنيف الأدعية حسب الفئات
+- عرض واضح وسهل للقراءة
+- إمكانية التصفح السريع
+
+## 🌙 السنن النبوية
+
+- عرض السنن اليومية
+- متابعة السنن المنجزة
+- تشجيع المستخدم على تطبيق السنن
+- نظام متابعة للتقدم
+
+## 🔔 الإشعارات الذكية
+
+- تذكيرات يومية
+- إشعارات للأذكار
+- إشعارات للسنن
+- رسائل تحفيزية
+
+## 🏆 الإنجازات والأوسمة
+
+- نظام نقاط
+- أوسمة وإنجازات
+- تتبع التقدم
+- نظام الاستمرارية اليومية
+
+## 📊 الإحصائيات
+
+- عدد الأذكار المكتملة
+- عدد السنن المنجزة
+- إجمالي النقاط
+- معدل الالتزام اليومي
+
+## 🎨 تجربة مستخدم مميزة
+
+- تصميم عصري وأنيق
+- الوضع الداكن والفاتح
+- رسوم متحركة سلسة
+- واجهات سهلة الاستخدام
+
+---
+
+# 📱 Screenshots
+
+<div align="center">
+
+<img src="screenshots/home.png" width="220"/>
+<img src="screenshots/azkar.png" width="220"/>
+
+<br><br>
+
+<img src="screenshots/duaa.png" width="220"/>
+<img src="screenshots/tools.png" width="220"/>
+
+</div>
+
+---
+
+# 🏗️ هيكل المشروع
 
 ```text
 lib/
+│
 ├── core/
+│   ├── constants/
 │   ├── services/
 │   ├── theme/
-│   ├── constants/
-│   ├── utilities/
-│   └── widgets/
+│   ├── widgets/
+│   └── utilities/
 │
 ├── features/
 │   ├── home/
-│   ├── adhkar/
+│   ├── azkar/
 │   ├── dua/
 │   ├── sunnah/
 │   ├── notifications/
@@ -97,45 +124,74 @@ lib/
 │   ├── statistics/
 │   └── settings/
 │
-├── models/
 ├── data/
+├── models/
+│
 └── main.dart
 ```
 
 ---
 
-## 🚀 Getting Started
+# ⚙️ التقنيات المستخدمة
 
-### Prerequisites
+## Frontend
 
-Before running the project, make sure you have:
+- Flutter
+- Dart
+- Material Design 3
+
+## State Management
+
+- Provider
+- Bloc / Cubit
+
+## Local Storage
+
+- Hive
+- SharedPreferences
+
+## Notifications
+
+- Flutter Local Notifications
+- Timezone
+
+## UI & Animations
+
+- Google Fonts
+- Lottie
+
+---
+
+# 🚀 تشغيل المشروع
+
+## المتطلبات
 
 - Flutter SDK
 - Dart SDK
-- Android Studio or VS Code
-- Android Emulator or Physical Device
+- Android Studio أو VS Code
+- Android Emulator أو جهاز حقيقي
 
-### Installation
+## تثبيت المشروع
 
-Clone the repository:
+### 1. استنساخ المستودع
 
 ```bash
 git clone https://github.com/your-username/qal-rasool-allah.git
 ```
 
-Navigate to the project folder:
+### 2. الدخول إلى المشروع
 
 ```bash
 cd qal-rasool-allah
 ```
 
-Install dependencies:
+### 3. تحميل الحزم
 
 ```bash
 flutter pub get
 ```
 
-Run the application:
+### 4. تشغيل التطبيق
 
 ```bash
 flutter run
@@ -143,18 +199,7 @@ flutter run
 
 ---
 
-## 🛠️ Built With
-
-- Flutter
-- Dart
-- Material Design 3
-- Local Notifications
-- Shared Preferences
-- JSON Data Storage
-
----
-
-## 📦 Main Dependencies
+# 📦 الحزم الرئيسية
 
 ```yaml
 flutter_bloc
@@ -170,69 +215,48 @@ hive_flutter
 
 ---
 
-## 🎯 Future Roadmap
+# 🏆 نظام التحفيز
 
-- [ ] Holy Quran Integration
-- [ ] Quran Tafsir
-- [ ] Hadith Collection
-- [ ] Digital Tasbeeh Counter
-- [ ] Prayer Times
-- [ ] Qibla Direction
-- [ ] Quran Khatmah Tracker
-- [ ] Cloud Synchronization
-- [ ] Community Challenges
-- [ ] Personalized Islamic Recommendations
+يحتوي التطبيق على نظام متكامل للتحفيز يساعد المستخدم على الاستمرار في أداء العبادات اليومية من خلال:
+
+- كسب النقاط.
+- فتح الإنجازات.
+- الحصول على الأوسمة.
+- تتبع الاستمرارية اليومية.
+- متابعة التقدم الشخصي.
 
 ---
 
-## 🏆 Project Goals
+# 🔮 التطويرات المستقبلية
 
-The main objective of this project is to:
-
-- Encourage daily remembrance of Allah.
-- Help users practice authentic prophetic sunnahs.
-- Build consistency in worship through reminders.
-- Provide a beautiful and engaging Islamic experience.
-- Motivate users through achievements and progress tracking.
+- [ ] القرآن الكريم
+- [ ] تفسير القرآن
+- [ ] مكتبة الأحاديث النبوية
+- [ ] سبحة إلكترونية
+- [ ] مواقيت الصلاة
+- [ ] اتجاه القبلة
+- [ ] ختمة القرآن
+- [ ] تسجيل الدخول والمزامنة السحابية
+- [ ] تحديات إسلامية جماعية
+- [ ] مشاركة الإنجازات
 
 ---
 
-## 🤝 Contributing
+# 🤝 المساهمة
 
-Contributions are welcome and appreciated.
-
-1. Fork the repository
-2. Create your feature branch
+نرحب بجميع المساهمات والتطويرات.
 
 ```bash
 git checkout -b feature/NewFeature
-```
-
-3. Commit your changes
-
-```bash
-git commit -m "Add NewFeature"
-```
-
-4. Push to the branch
-
-```bash
+git commit -m "Add New Feature"
 git push origin feature/NewFeature
 ```
 
-5. Open a Pull Request
+ثم قم بإنشاء Pull Request.
 
 ---
 
-## 📜 License
-
-This project is licensed under the MIT License.
-
-See the LICENSE file for details.
-
----
-
-## 👨‍💻 Developer
+# 👨‍💻 المطور
 
 **Abdullah**
 
@@ -240,24 +264,26 @@ Flutter Developer & AI Enthusiast
 
 ---
 
-## 🌙 Islamic Reminder
+# 🌙 رسالة
 
-> "The most beloved deeds to Allah are those that are consistent, even if they are small."
+> قال رسول الله ﷺ:
+>
+> **"أحب الأعمال إلى الله أدومها وإن قل"**
 
-— :contentReference[oaicite:0]{index=0} ﷺ
+نسأل الله أن يجعل هذا العمل خالصًا لوجهه الكريم وأن ينفع به المسلمين في كل مكان.
 
 ---
 
-## ⭐ Support
+# ⭐ دعم المشروع
 
-If you find this project useful, please consider giving it a star on GitHub.
-
-Your support helps the project reach more people and continue growing.
+إذا أعجبك المشروع فلا تنسَ وضع ⭐ للمستودع على GitHub.
 
 ---
 
 <div align="center">
 
-### May Allah accept this effort and make it beneficial for Muslims around the world 🤲
+### جزاكم الله خيرًا 🤲
+
+**Made with Flutter ❤️ for the Muslim Ummah**
 
 </div>
